@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  color: #0f172a;
+  background-color: #f6f8fb;
+  background-image:
+    radial-gradient(60rem 60rem at 100% -10%, rgba(47, 140, 130, 0.06), transparent 50%),
+    radial-gradient(50rem 50rem at -10% 10%, rgba(47, 140, 130, 0.05), transparent 50%);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+@layer components {
+  /* Surface card */
+  .card {
+    @apply rounded-2xl border border-slate-200/70 bg-white shadow-card;
+  }
+
+  /* Primary action button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-soft transition-all duration-150 hover:bg-brand-700 hover:shadow-glow active:scale-[0.97] disabled:opacity-50 disabled:shadow-none;
+  }
+
+  /* Secondary / outline button */
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-soft transition-all duration-150 hover:border-slate-400 hover:bg-slate-50 active:scale-[0.97] disabled:opacity-50;
+  }
+
+  /* Icon-only button */
+  .btn-icon {
+    @apply rounded-xl border border-slate-200 p-2 text-slate-400 transition hover:bg-slate-50;
+  }
+
+  /* Text input */
+  .input {
+    @apply w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-slate-800 shadow-soft outline-none transition-all duration-150 placeholder:text-slate-400 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10;
+  }
+
+  /* Status pill */
+  .pill {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ring-1;
+  }
+}

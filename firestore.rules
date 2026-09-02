@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Set this to your super admin email (same as VITE_SUPER_ADMIN_EMAIL).
+    function isSuperAdmin() {
+      return request.auth != null && request.auth.token.email == 'monumittal21598@gmail.com';
+    }
+
+    // Per-user data: each signed-in user can only read/write their own subtree.
+    match /users/{uid}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Client registry: a user manages their own record; the super admin sees all.
+    match /clients/{uid} {
+      allow read: if request.auth != null && (request.auth.uid == uid || isSuperAdmin());
+      // A user may create/update their own record but must not change their own status.
+      allow create: if request.auth != null && request.auth.uid == uid;
+      allow update: if request.auth != null && (
+        isSuperAdmin() ||
+        (request.auth.uid == uid && request.resource.data.status == resource.data.status)
+      );
+    }
+  }
+}
