@@ -6,7 +6,7 @@ import { deleteCustomer, getCustomer, setCustomerActive } from '../services/cust
 import { paiseToRupees, rupeesToPaise } from '../services/money';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, Plus, Pencil, Power, Phone, ArrowLeft, MoreVertical, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { Trash2, Plus, Pencil, Power, Phone, ArrowLeft, MoreVertical, CheckCircle2, Clock, AlertCircle, User } from 'lucide-react';
 import CustomerForm from '../components/CustomerForm';
 import DeliveryEntryForm from '../components/DeliveryEntryForm';
 import EntryList from '../components/EntryList';
@@ -182,8 +182,8 @@ export default function CustomerDetailPage() {
       <div className="animate-slide-up rounded-2xl bg-gradient-to-br from-brand-600 via-brand-600 to-brand-700 p-4 text-white shadow-sm ring-1 ring-brand-500/30">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 text-base font-bold text-white ring-1 ring-white/25">
-              {initials}
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white ring-1 ring-white/25">
+              <User size={20} className="opacity-80" />
             </div>
             <div className="min-w-0">
               <h1 className="truncate text-lg font-bold leading-tight sm:text-xl">{customer.name}</h1>
@@ -210,7 +210,7 @@ export default function CustomerDetailPage() {
           <div className="relative">
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="flex shrink-0 items-center justify-center rounded-xl bg-white/10 p-2 text-white/90 ring-1 ring-white/15 backdrop-blur transition hover:bg-white/20 hover:text-white"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white/90 ring-1 ring-white/15 backdrop-blur transition hover:bg-white/20 hover:text-white"
             >
               <MoreVertical size={18} />
             </button>

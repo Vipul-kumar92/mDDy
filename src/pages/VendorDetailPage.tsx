@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Pencil, Trash2, Plus, Truck, Power, Phone, ArrowLeft, MoreVertical, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { Pencil, Trash2, Plus, Truck, Power, Phone, ArrowLeft, MoreVertical, CheckCircle2, Clock, AlertCircle, Store } from 'lucide-react';
 import { getVendor, deleteVendor, setVendorActive } from '../services/vendorService';
 import {
   listPurchases,
@@ -187,8 +187,8 @@ export default function VendorDetailPage() {
       <div className="animate-slide-up rounded-2xl bg-gradient-to-br from-vendor-600 via-vendor-600 to-vendor-700 p-4 text-white shadow-sm ring-1 ring-vendor-500/30">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 text-base font-bold text-white ring-1 ring-white/25">
-              {initials}
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white ring-1 ring-white/25">
+              <Store size={20} className="opacity-80" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
@@ -220,7 +220,7 @@ export default function VendorDetailPage() {
           <div className="relative">
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="flex shrink-0 items-center justify-center rounded-xl bg-white/10 p-2 text-white/90 ring-1 ring-white/15 backdrop-blur transition hover:bg-white/20 hover:text-white"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10 text-white/90 ring-1 ring-white/15 backdrop-blur transition hover:bg-white/20 hover:text-white"
             >
               <MoreVertical size={18} />
             </button>
