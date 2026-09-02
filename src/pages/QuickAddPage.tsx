@@ -2,20 +2,16 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
 import { subscribeCustomers } from '../services/customerService';
-import { subscribeVendors } from '../services/vendorService';
 import { addEntry } from '../services/deliveryService';
-import { addPurchase } from '../services/purchaseService';
 import { recordPartialPayment } from '../services/billingService';
-import { recordVendorPayment } from '../services/purchaseService';
 import { rupeesToPaise, unitsToHundredths } from '../services/money';
 import { todayIso } from '../services/customerService';
-import type { Customer, Vendor, Product, ProductType, Slot } from '../lib/types';
+import type { Customer, Product, ProductType, Slot } from '../lib/types';
 
 export default function QuickAddPage() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState<'customer' | 'vendor'>('customer');
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [search, setSearch] = useState('');
   
   const [selectedId, setSelectedId] = useState<string>('');
   const [date, setDate] = useState(todayIso());
@@ -34,32 +30,17 @@ export default function QuickAddPage() {
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    const unsubC = subscribeCustomers(setCustomers);
-    const unsubV = subscribeVendors(setVendors);
-    return () => {
-      unsubC();
-      unsubV();
-    };
+    return subscribeCustomers(setCustomers);
   }, []);
 
-  const activeList = tab === 'customer' ? customers : vendors;
-  const activeEntity = tab === 'customer' 
-    ? customers.find(c => c.id === selectedId)
-    : vendors.find(v => v.id === selectedId);
-
-  // If tab changes, clear selection
-  useEffect(() => {
-    setSelectedId('');
-    setSuccess('');
-    setError('');
-  }, [tab]);
+  const activeEntity = customers.find(c => c.id === selectedId);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
     if (!selectedId) {
-      setError('Please select a ' + tab);
+      setError('Please select a valid customer from the list.');
       return;
     }
     if (!qty.trim() && !amountPaid.trim()) {
@@ -69,40 +50,27 @@ export default function QuickAddPage() {
 
     setLoading(true);
     try {
-      // 1. Add Delivery / Purchase if quantity exists
+      // 1. Add Delivery
       if (qty.trim()) {
         const hundQty = unitsToHundredths(qty);
-        if (tab === 'customer') {
-          await addEntry(selectedId, {
-            date,
-            slot,
-            product,
-            quantity: hundQty,
-            type: product === 'milk' || product === 'ghee' || product === 'cream' ? type : undefined,
-          });
-        } else {
-          await addPurchase(selectedId, {
-            date,
-            slot,
-            product,
-            quantity: hundQty,
-            type: product === 'milk' || product === 'ghee' || product === 'cream' ? type : undefined,
-          });
-        }
+        await addEntry(selectedId, {
+          date,
+          slot,
+          product,
+          quantity: hundQty,
+          type: product === 'milk' || product === 'ghee' || product === 'cream' ? type : undefined,
+        });
       }
 
-      // 2. Add Payment if amount exists
+      // 2. Add Payment
       if (amountPaid.trim()) {
         const paise = rupeesToPaise(amountPaid);
-        if (tab === 'customer') {
-          await recordPartialPayment(selectedId, paise);
-        } else {
-          await recordVendorPayment(selectedId, paise);
-        }
+        await recordPartialPayment(selectedId, paise);
       }
 
-      setSuccess(`Successfully recorded for ${activeEntity?.name}`);
-      // Reset form
+      setSuccess('Entry added successfully!');
+      
+      // Reset form but keep date and customer selected for rapid entry
       setQty('');
       setAmountPaid('');
       
@@ -114,47 +82,43 @@ export default function QuickAddPage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl animate-fade-in space-y-4 p-4">
-      <div className="flex items-center justify-between">
-        <button onClick={() => navigate(-1)} className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-slate-900">
-          <ArrowLeft size={16} />
-          Back
-        </button>
-        <h1 className="text-xl font-bold text-slate-900">Quick Add Entry</h1>
-      </div>
-
-      {/* Tabs */}
-      <div className="flex rounded-xl bg-slate-100 p-1">
-        {(['customer', 'vendor'] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold capitalize transition ${
-              tab === t
-                ? 'bg-white text-brand-700 shadow-soft'
-                : 'text-slate-500 hover:text-slate-700'
-            }`}
-          >
-            {t}s
+    <div className="mx-auto max-w-2xl animate-fade-in p-4">
+        {/* Header */}
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Quick Add</h1>
+            <p className="text-sm text-slate-500">Log customer deliveries & payments</p>
+          </div>
+          <button onClick={() => navigate(-1)} className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-slate-900">
+            <ArrowLeft size={16} />
+            Back
           </button>
-        ))}
-      </div>
+        </div>
 
       <form onSubmit={handleSubmit} className="card space-y-5 p-5 sm:p-6">
-        {/* Select Entity */}
+        {/* Entity Selection */}
         <div className="space-y-1.5">
-          <label className="block text-sm font-semibold text-slate-700">Select {tab}</label>
-          <select
-            value={selectedId}
-            onChange={(e) => setSelectedId(e.target.value)}
+          <label className="block text-sm font-semibold text-slate-700">Select Customer</label>
+          <input
+            type="text"
+            list="customers-list"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              const c = customers.find((cust) => cust.name === e.target.value);
+              if (c) setSelectedId(c.id);
+              else setSelectedId('');
+            }}
+            placeholder="Type customer name..."
             className="input w-full font-medium"
             required
-          >
-            <option value="">-- Choose {tab} --</option>
-            {activeList.map((e) => (
-              <option key={e.id} value={e.id}>{e.name}</option>
+            autoFocus
+          />
+          <datalist id="customers-list">
+            {customers.map((c) => (
+              <option key={c.id} value={c.name} />
             ))}
-          </select>
+          </datalist>
         </div>
 
         {activeEntity && (
