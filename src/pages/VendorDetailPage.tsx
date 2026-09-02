@@ -194,12 +194,7 @@ export default function VendorDetailPage() {
               <Store size={20} className="opacity-80" />
             </div>
             <div className="min-w-0">
-              <div className="flex items-center gap-1.5">
-                <h1 className="truncate text-lg font-bold leading-tight sm:text-xl">{vendor.name}</h1>
-                <span className="inline-flex items-center gap-1 rounded-md bg-white/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white/90 ring-1 ring-white/20">
-                  <Truck size={10} /> Vendor
-                </span>
-              </div>
+              <h1 className="truncate text-lg font-bold leading-tight sm:text-xl">{vendor.name}</h1>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
                 {vendor.phone && (
                   <span className="inline-flex items-center gap-1 font-medium text-white/80">
