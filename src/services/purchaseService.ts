@@ -275,6 +275,57 @@ export async function deleteVendorPayment(vendorId: string, paymentId: string): 
   }
 }
 
+/** 
+ * Reopen a closed cycle: restore entries and partial payments, 
+ * delete the cycle document, and update the vendor's balance. 
+ */
+export async function reopenVendorCycle(vendorId: string, cycleId: string, paymentIdToRemove: string): Promise<void> {
+  const cycleRef = doc(db, ...vendPath(vendorId, 'cycles', cycleId));
+  const cycleSnap = await getDoc(cycleRef);
+  if (!cycleSnap.exists()) {
+    throw new AppError('CYCLE_NOT_FOUND', 'Could not find the closed cycle to reopen.');
+  }
+
+  const cycleData = cycleSnap.data();
+  const entries = (cycleData.entries ?? []) as PurchaseEntry[];
+  const payments = (cycleData.payments ?? []) as { id?: string; amountPaise: number; date: string; type: string }[];
+
+  // 1. Restore all entries
+  const entriesRef = collection(db, ...vendPath(vendorId, 'entries'));
+  for (const entry of entries) {
+    await addDoc(entriesRef, {
+      ...entry,
+      createdAt: serverTimestamp(),
+    });
+  }
+
+  // 2. Restore all payments except the one to remove
+  let totalRestoredPaid = 0;
+  const paymentsRef = collection(db, ...vendPath(vendorId, 'payments'));
+  for (const p of payments) {
+    if (p.id === paymentIdToRemove) continue;
+    
+    totalRestoredPaid += p.amountPaise;
+    await addDoc(paymentsRef, {
+      amountPaise: p.amountPaise,
+      date: p.date,
+      type: p.type === 'final' ? 'partial' : p.type,
+      createdAt: serverTimestamp(),
+    });
+  }
+
+  // 3. Delete the cycle document
+  await deleteDoc(cycleRef);
+
+  // 4. Update the vendor's paymentStatus and paidPaise
+  const vendorRef = doc(db, ...vendPath(vendorId));
+  await updateDoc(vendorRef, {
+    paidPaise: totalRestoredPaid,
+    paymentStatus: totalRestoredPaid === 0 ? 'unpaid' : 'partial',
+    currentCycleStart: cycleData.startDate,
+  });
+}
+
 /** List closed purchase cycles, most recent first. */
 export async function listVendorCycles(vendorId: string): Promise<ClosedCycle[]> {
   const ref = collection(db, ...vendPath(vendorId, 'cycles'));

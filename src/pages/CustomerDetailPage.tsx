@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { listCurrentEntries } from '../services/deliveryService';
-import { markPaid, listCycles, computeBill, recordPartialPayment, listPayments, lastOfMonth, deletePayment, type PaymentLog } from '../services/billingService';
+import { markPaid, listCycles, computeBill, recordPartialPayment, listPayments, lastOfMonth, deletePayment, reopenCycle, type PaymentLog } from '../services/billingService';
 import { deleteCustomer, getCustomer, setCustomerActive } from '../services/customerService';
 import { paiseToRupees, rupeesToPaise } from '../services/money';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -121,6 +121,20 @@ export default function CustomerDetailPage() {
     } catch (err: any) {
       console.error('Failed to delete payment:', err);
       setMessage('Could not delete payment.');
+    }
+  };
+
+  const handleDeleteHistoryPayment = async (cycleId: string, paymentId: string) => {
+    if (!id) return;
+    if (!window.confirm('Deleting a payment from a closed cycle will reopen the bill. Are you sure you want to do this?')) return;
+    try {
+      await reopenCycle(id, cycleId, paymentId);
+      setMessage('Payment deleted and bill reopened.');
+      setTab('entries');
+      await refresh();
+    } catch (err: any) {
+      console.error('Failed to reopen cycle and delete payment:', err);
+      setMessage(err instanceof AppError ? err.message : 'Could not delete payment.');
     }
   };
 
@@ -316,7 +330,7 @@ export default function CustomerDetailPage() {
                               <span className="font-medium text-slate-800">₹{paiseToRupees(p.amountPaise)}</span>
                               <button
                                 onClick={() => handleDeletePayment(p.id)}
-                                className="opacity-0 transition-opacity group-hover:opacity-100 text-red-400 hover:text-red-600 p-1"
+                                className="text-red-400 hover:text-red-600 p-1 transition-colors"
                                 title="Delete payment"
                               >
                                 <Trash2 size={14} />
@@ -365,7 +379,7 @@ export default function CustomerDetailPage() {
         </div>
       )}
 
-      {tab === 'history' && <PaymentHistory cycles={cycles} customer={customer} />}
+      {tab === 'history' && <PaymentHistory cycles={cycles} customer={customer} onDeleteHistoryPayment={handleDeleteHistoryPayment} />}
 
       <Modal open={editingCustomer} title="Edit customer" onClose={() => setEditingCustomer(false)}>
         <CustomerForm

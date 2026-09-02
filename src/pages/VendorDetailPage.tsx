@@ -10,10 +10,11 @@ import {
   listVendorCycles,
   listVendorPayments,
   deleteVendorPayment,
+  reopenVendorCycle,
   type PaymentLog,
 } from '../services/purchaseService';
 import { paiseToRupees, rupeesToPaise } from '../services/money';
-import { type ClosedCycle, type PurchaseEntry, type Vendor } from '../lib/types';
+import { type ClosedCycle, type PurchaseEntry, type Vendor, AppError } from '../lib/types';
 import VendorForm from '../components/VendorForm';
 import PurchaseEntryForm from '../components/PurchaseEntryForm';
 import PurchaseList from '../components/PurchaseList';
@@ -116,6 +117,20 @@ export default function VendorDetailPage() {
     } catch (err: any) {
       console.error('Failed to delete payment:', err);
       setMessage('Could not delete payment.');
+    }
+  };
+
+  const handleDeleteHistoryPayment = async (cycleId: string, paymentId: string) => {
+    if (!id) return;
+    if (!window.confirm('Deleting a payment from a closed cycle will reopen the bill. Are you sure you want to do this?')) return;
+    try {
+      await reopenVendorCycle(id, cycleId, paymentId);
+      setMessage('Payment deleted and bill reopened.');
+      setTab('entries');
+      await refresh();
+    } catch (err: any) {
+      console.error('Failed to reopen cycle and delete payment:', err);
+      setMessage(err instanceof AppError ? err.message : 'Could not delete payment.');
     }
   };
 
@@ -289,7 +304,7 @@ export default function VendorDetailPage() {
                             <span className="font-medium text-slate-800">₹{paiseToRupees(p.amountPaise)}</span>
                             <button
                               onClick={() => handleDeletePayment(p.id)}
-                              className="opacity-0 transition-opacity group-hover:opacity-100 text-red-400 hover:text-red-600 p-1"
+                              className="text-red-400 hover:text-red-600 p-1 transition-colors"
                               title="Delete payment"
                             >
                               <Trash2 size={14} />
@@ -331,7 +346,7 @@ export default function VendorDetailPage() {
         </div>
       )}
 
-      {tab === 'history' && <PaymentHistory cycles={cycles} customer={asCustomer} />}
+      {tab === 'history' && <PaymentHistory cycles={cycles} customer={asCustomer} onDeleteHistoryPayment={handleDeleteHistoryPayment} />}
 
       <Modal open={editing} title="Edit vendor" onClose={() => setEditing(false)}>
         <VendorForm vendor={vendor} onSaved={async () => { setVendor(await getVendor(id)); setEditing(false); }} onCancel={() => setEditing(false)} />

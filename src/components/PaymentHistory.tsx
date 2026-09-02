@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, ChevronDown, ChevronUp } from 'lucide-react';
+import { Download, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import IconButton from './IconButton';
 import { paiseToRupees, hundredthsToUnits } from '../services/money';
 import { generateBillPdf } from '../services/pdfService';
@@ -10,6 +10,7 @@ import type { ClosedCycle, Customer, LineItem } from '../lib/types';
 interface Props {
   cycles: ClosedCycle[];
   customer: Customer;
+  onDeleteHistoryPayment?: (cycleId: string, paymentId: string) => void;
 }
 
 const PRODUCT_LABEL: Record<string, string> = {
@@ -31,7 +32,7 @@ function unitFor(product: string): string {
 }
 
 /** Past (closed) billing cycles with an expandable breakdown and PDF download. */
-export default function PaymentHistory({ cycles, customer }: Props) {
+export default function PaymentHistory({ cycles, customer, onDeleteHistoryPayment }: Props) {
   const [openId, setOpenId] = useState<string | null>(null);
 
   const download = async (c: ClosedCycle) => {
@@ -126,7 +127,32 @@ export default function PaymentHistory({ cycles, customer }: Props) {
                   </tfoot>
                 </table>
 
-                <div className="mt-2 flex items-center justify-between">
+                {c.payments && c.payments.length > 0 && (
+                  <div className="mt-3 rounded-lg border border-slate-100 bg-slate-50 p-2.5">
+                    <p className="mb-1.5 text-xs font-medium text-slate-500">Payments in this cycle</p>
+                    <ul className="space-y-1">
+                      {c.payments.map((p) => (
+                        <li key={p.id} className="flex items-center justify-between text-sm">
+                          <span className="text-slate-600">{p.date}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-slate-800">₹{paiseToRupees(p.amountPaise)}</span>
+                            {onDeleteHistoryPayment && c.id === cycles[0].id && p.id && (
+                              <button
+                                onClick={() => onDeleteHistoryPayment(c.id, p.id!)}
+                                className="text-red-400 hover:text-red-600 transition-colors p-1"
+                                title="Delete payment (reopens bill)"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            )}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <div className="mt-3 flex items-center justify-between">
                   <span className="text-xs text-slate-500">
                     {c.entries.length} {c.entries.length === 1 ? 'entry' : 'entries'} in this cycle
                   </span>

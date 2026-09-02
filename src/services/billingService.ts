@@ -371,6 +371,59 @@ export async function deletePayment(customerId: string, paymentId: string): Prom
   }
 }
 
+/** 
+ * Reopen a closed cycle: restore entries and partial payments, 
+ * delete the cycle document, and update the customer's balance. 
+ */
+export async function reopenCycle(customerId: string, cycleId: string, paymentIdToRemove: string): Promise<void> {
+  const cycleRef = doc(db, ...custPath(customerId, 'cycles', cycleId));
+  const cycleSnap = await getDoc(cycleRef);
+  if (!cycleSnap.exists()) {
+    throw new AppError('CYCLE_NOT_FOUND', 'Could not find the closed cycle to reopen.');
+  }
+
+  const cycleData = cycleSnap.data();
+  const entries = (cycleData.entries ?? []) as DeliveryEntry[];
+  const payments = (cycleData.payments ?? []) as { id?: string; amountPaise: number; date: string; type: string }[];
+
+  // 1. Restore all entries to the active entries collection
+  const entriesRef = collection(db, ...custPath(customerId, 'entries'));
+  for (const entry of entries) {
+    // If the entry already had an id, try to use it. Or let Firestore generate a new one.
+    // It's safer to just addDoc so we don't accidentally overwrite.
+    await addDoc(entriesRef, {
+      ...entry,
+      createdAt: serverTimestamp(),
+    });
+  }
+
+  // 2. Restore all payments to the active payments collection, EXCEPT the one to remove
+  let totalRestoredPaid = 0;
+  const paymentsRef = collection(db, ...custPath(customerId, 'payments'));
+  for (const p of payments) {
+    if (p.id === paymentIdToRemove) continue;
+    
+    totalRestoredPaid += p.amountPaise;
+    await addDoc(paymentsRef, {
+      amountPaise: p.amountPaise,
+      date: p.date,
+      type: p.type === 'final' ? 'partial' : p.type, // if it was final but we removed something else, it might just be partial now
+      createdAt: serverTimestamp(),
+    });
+  }
+
+  // 3. Delete the cycle document
+  await deleteDoc(cycleRef);
+
+  // 4. Update the customer's paymentStatus and paidPaise
+  const customerRef = doc(db, ...custPath(customerId));
+  await updateDoc(customerRef, {
+    paidPaise: totalRestoredPaid,
+    paymentStatus: totalRestoredPaid === 0 ? 'unpaid' : 'partial',
+    currentCycleStart: cycleData.startDate, // Reset the current cycle start to what it was
+  });
+}
+
 /** List closed billing cycles, most recent first (Requirements 7.7). */
 export async function listCycles(customerId: string): Promise<ClosedCycle[]> {
   const cyclesRef = collection(db, ...custPath(customerId, 'cycles'));
