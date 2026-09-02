@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Pencil, Trash2, Plus, Truck, Power } from 'lucide-react';
+import { Pencil, Trash2, Plus, Truck, Power, Phone } from 'lucide-react';
 import { getVendor, deleteVendor, setVendorActive } from '../services/vendorService';
 import {
   listPurchases,
@@ -148,39 +148,63 @@ export default function VendorDetailPage() {
         ‹ Vendors
       </Link>
 
-      {/* Header card — vendor gradient hero (indigo) */}
-      <div className="animate-slide-up overflow-hidden rounded-3xl bg-gradient-to-br from-vendor-500 via-vendor-600 to-vendor-800 p-5 text-white shadow-lift">
-        <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white/90 ring-1 ring-white/20">
-          <Truck size={12} /> Vendor
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-xl font-bold text-white ring-1 ring-white/25">
-            {initials}
+      {/* Header card — compact professional card */}
+      <div className="animate-slide-up rounded-2xl bg-gradient-to-br from-vendor-600 via-vendor-600 to-vendor-700 p-4 text-white shadow-sm ring-1 ring-vendor-500/30">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 text-base font-bold text-white ring-1 ring-white/25">
+              {initials}
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <h1 className="truncate text-lg font-bold leading-tight sm:text-xl">{vendor.name}</h1>
+                <span className="inline-flex items-center gap-1 rounded-md bg-white/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white/90 ring-1 ring-white/20">
+                  <Truck size={10} /> Vendor
+                </span>
+              </div>
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
+                {vendor.phone && (
+                  <span className="inline-flex items-center gap-1 font-medium text-white/80">
+                    <Phone size={11} className="text-white/70" />
+                    {vendor.phone}
+                  </span>
+                )}
+                <span className="inline-flex items-center rounded-md bg-white/15 px-2 py-0.5 text-[11px] font-semibold text-white ring-1 ring-white/20">
+                  {statusBadge.label}
+                </span>
+                {vendor.active === false && (
+                  <span className="inline-flex items-center rounded-md bg-rose-500/30 px-2 py-0.5 text-[11px] font-semibold text-rose-100 ring-1 ring-rose-400/30">
+                    Inactive
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="truncate text-2xl font-extrabold leading-tight">{vendor.name}</h1>
-            {vendor.phone && <p className="truncate text-sm text-white/70">{vendor.phone}</p>}
-          </div>
-        </div>
-        <div className="mt-4 flex items-center gap-2 border-t border-white/15 pt-3">
-          <span className="pill bg-white/15 text-white ring-white/25">{statusBadge.label}</span>
-          {vendor.active === false && (
-            <span className="pill bg-white/25 text-white ring-white/30">Inactive</span>
-          )}
-          <div className="ml-auto flex shrink-0 items-center gap-0.5">
-            <button onClick={() => setEditing(true)} aria-label="Edit vendor" title="Edit vendor" className="rounded-xl p-2 text-white/80 transition hover:bg-white/15 hover:text-white">
-              <Pencil size={18} />
+
+          <div className="flex shrink-0 items-center gap-0.5 rounded-xl bg-white/10 p-1 ring-1 ring-white/15 backdrop-blur">
+            <button
+              onClick={() => setEditing(true)}
+              aria-label="Edit vendor"
+              title="Edit vendor"
+              className="rounded-lg p-1.5 text-white/85 transition hover:bg-white/20 hover:text-white"
+            >
+              <Pencil size={15} />
             </button>
             <button
               onClick={() => setConfirmToggle(true)}
               aria-label={vendor.active === false ? 'Activate vendor' : 'Deactivate vendor'}
               title={vendor.active === false ? 'Activate' : 'Deactivate'}
-              className="rounded-xl p-2 text-white/80 transition hover:bg-white/15 hover:text-white"
+              className="rounded-lg p-1.5 text-white/85 transition hover:bg-white/20 hover:text-white"
             >
-              <Power size={18} />
+              <Power size={15} />
             </button>
-            <button onClick={() => setConfirmDelete(true)} aria-label="Delete vendor" title="Delete vendor" className="rounded-xl p-2 text-white/80 transition hover:bg-white/15 hover:text-white">
-              <Trash2 size={18} />
+            <button
+              onClick={() => setConfirmDelete(true)}
+              aria-label="Delete vendor"
+              title="Delete vendor"
+              className="rounded-lg p-1.5 text-white/85 transition hover:bg-rose-500/30 hover:text-white"
+            >
+              <Trash2 size={15} />
             </button>
           </div>
         </div>

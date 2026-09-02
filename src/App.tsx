@@ -10,6 +10,7 @@ import VendorListPage from './pages/VendorListPage';
 import VendorDetailPage from './pages/VendorDetailPage';
 import CalculatorPage from './pages/CalculatorPage';
 import AdminPage from './pages/AdminPage';
+import DashboardPage from './pages/DashboardPage';
 
 function Protected({ children }: { children: React.ReactNode }) {
   return (
@@ -25,6 +26,14 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/dashboard"
+            element={
+              <Protected>
+                <DashboardPage />
+              </Protected>
+            }
+          />
           <Route
             path="/"
             element={

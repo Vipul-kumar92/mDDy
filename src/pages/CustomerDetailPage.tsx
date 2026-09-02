@@ -6,7 +6,7 @@ import { deleteCustomer, getCustomer, setCustomerActive } from '../services/cust
 import { paiseToRupees, rupeesToPaise } from '../services/money';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, Plus, Pencil, Power } from 'lucide-react';
+import { Trash2, Plus, Pencil, Power, Phone } from 'lucide-react';
 import CustomerForm from '../components/CustomerForm';
 import DeliveryEntryForm from '../components/DeliveryEntryForm';
 import EntryList from '../components/EntryList';
@@ -145,47 +145,58 @@ export default function CustomerDetailPage() {
         ‹ Customers
       </Link>
 
-      {/* Header card — gradient hero */}
-      <div className="animate-slide-up overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 via-brand-600 to-brand-800 p-5 text-white shadow-lift">
-        <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/15 text-xl font-bold text-white ring-1 ring-white/25">
-            {initials}
+      {/* Header card — compact professional card */}
+      <div className="animate-slide-up rounded-2xl bg-gradient-to-br from-brand-600 via-brand-600 to-brand-700 p-4 text-white shadow-sm ring-1 ring-brand-500/30">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 text-base font-bold text-white ring-1 ring-white/25">
+              {initials}
+            </div>
+            <div className="min-w-0">
+              <h1 className="truncate text-lg font-bold leading-tight sm:text-xl">{customer.name}</h1>
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
+                {customer.phone && (
+                  <span className="inline-flex items-center gap-1 font-medium text-white/80">
+                    <Phone size={11} className="text-white/70" />
+                    {customer.phone}
+                  </span>
+                )}
+                <span className="inline-flex items-center rounded-md bg-white/15 px-2 py-0.5 text-[11px] font-semibold text-white ring-1 ring-white/20">
+                  {statusBadge.label}
+                </span>
+                {customer.active === false && (
+                  <span className="inline-flex items-center rounded-md bg-rose-500/30 px-2 py-0.5 text-[11px] font-semibold text-rose-100 ring-1 ring-rose-400/30">
+                    Inactive
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="truncate text-2xl font-extrabold leading-tight">{customer.name}</h1>
-            {customer.phone && <p className="truncate text-sm text-white/70">{customer.phone}</p>}
-          </div>
-        </div>
-        {/* Badges + actions on their own row so the name never gets squeezed. */}
-        <div className="mt-4 flex items-center gap-2 border-t border-white/15 pt-3">
-          <span className="pill bg-white/15 text-white ring-white/25">{statusBadge.label}</span>
-          {customer.active === false && (
-            <span className="pill bg-white/25 text-white ring-white/30">Inactive</span>
-          )}
-          <div className="ml-auto flex shrink-0 items-center gap-0.5">
+
+          <div className="flex shrink-0 items-center gap-0.5 rounded-xl bg-white/10 p-1 ring-1 ring-white/15 backdrop-blur">
             <button
               onClick={() => setEditingCustomer(true)}
               aria-label="Edit customer"
               title="Edit customer"
-              className="rounded-xl p-2 text-white/80 transition hover:bg-white/15 hover:text-white"
+              className="rounded-lg p-1.5 text-white/85 transition hover:bg-white/20 hover:text-white"
             >
-              <Pencil size={18} />
+              <Pencil size={15} />
             </button>
             <button
               onClick={() => setConfirmToggle(true)}
               aria-label={customer.active === false ? 'Activate customer' : 'Deactivate customer'}
               title={customer.active === false ? 'Activate' : 'Deactivate'}
-              className="rounded-xl p-2 text-white/80 transition hover:bg-white/15 hover:text-white"
+              className="rounded-lg p-1.5 text-white/85 transition hover:bg-white/20 hover:text-white"
             >
-              <Power size={18} />
+              <Power size={15} />
             </button>
             <button
               onClick={() => setConfirmDelete(true)}
               aria-label="Delete customer"
               title="Delete customer"
-              className="rounded-xl p-2 text-white/80 transition hover:bg-white/15 hover:text-white"
+              className="rounded-lg p-1.5 text-white/85 transition hover:bg-rose-500/30 hover:text-white"
             >
-              <Trash2 size={18} />
+              <Trash2 size={15} />
             </button>
           </div>
         </div>
