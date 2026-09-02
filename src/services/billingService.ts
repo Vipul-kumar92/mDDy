@@ -349,6 +349,28 @@ export async function listPayments(customerId: string): Promise<PaymentLog[]> {
   });
 }
 
+/** Delete a recorded payment (e.g. added by mistake) from the current active cycle. */
+export async function deletePayment(customerId: string, paymentId: string): Promise<void> {
+  const paymentRef = doc(db, ...custPath(customerId, 'payments', paymentId));
+  const paymentSnap = await getDoc(paymentRef);
+  if (!paymentSnap.exists()) return;
+
+  const amountPaise = (paymentSnap.data().amountPaise as number) ?? 0;
+
+  await deleteDoc(paymentRef);
+
+  const customerRef = doc(db, ...custPath(customerId));
+  const customerSnap = await getDoc(customerRef);
+  if (customerSnap.exists()) {
+    const prevPaid = (customerSnap.data().paidPaise as number) ?? 0;
+    const newPaid = Math.max(0, prevPaid - amountPaise);
+    await updateDoc(customerRef, {
+      paidPaise: newPaid,
+      paymentStatus: newPaid === 0 ? 'unpaid' : 'partial',
+    });
+  }
+}
+
 /** List closed billing cycles, most recent first (Requirements 7.7). */
 export async function listCycles(customerId: string): Promise<ClosedCycle[]> {
   const cyclesRef = collection(db, ...custPath(customerId, 'cycles'));

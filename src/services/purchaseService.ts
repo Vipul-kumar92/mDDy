@@ -253,6 +253,28 @@ export async function listVendorPayments(vendorId: string): Promise<PaymentLog[]
   });
 }
 
+/** Delete a recorded payment (e.g. added by mistake) from the current active cycle. */
+export async function deleteVendorPayment(vendorId: string, paymentId: string): Promise<void> {
+  const paymentRef = doc(db, ...vendPath(vendorId, 'payments', paymentId));
+  const paymentSnap = await getDoc(paymentRef);
+  if (!paymentSnap.exists()) return;
+
+  const amountPaise = (paymentSnap.data().amountPaise as number) ?? 0;
+
+  await deleteDoc(paymentRef);
+
+  const vendorRef = doc(db, ...vendPath(vendorId));
+  const vendorSnap = await getDoc(vendorRef);
+  if (vendorSnap.exists()) {
+    const prevPaid = (vendorSnap.data().paidPaise as number) ?? 0;
+    const newPaid = Math.max(0, prevPaid - amountPaise);
+    await updateDoc(vendorRef, {
+      paidPaise: newPaid,
+      paymentStatus: newPaid === 0 ? 'unpaid' : 'partial',
+    });
+  }
+}
+
 /** List closed purchase cycles, most recent first. */
 export async function listVendorCycles(vendorId: string): Promise<ClosedCycle[]> {
   const ref = collection(db, ...vendPath(vendorId, 'cycles'));

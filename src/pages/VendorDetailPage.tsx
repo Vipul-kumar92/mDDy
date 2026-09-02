@@ -9,6 +9,7 @@ import {
   recordVendorPayment,
   listVendorCycles,
   listVendorPayments,
+  deleteVendorPayment,
   type PaymentLog,
 } from '../services/purchaseService';
 import { paiseToRupees, rupeesToPaise } from '../services/money';
@@ -102,6 +103,19 @@ export default function VendorDetailPage() {
       setMessage(msg ? `Could not record payment: ${msg}` : 'Could not record payment.');
     } finally {
       setPaying(false);
+    }
+  };
+
+  const handleDeletePayment = async (paymentId: string) => {
+    if (!id) return;
+    if (!window.confirm('Are you sure you want to delete this payment?')) return;
+    try {
+      await deleteVendorPayment(id, paymentId);
+      setMessage('Payment deleted.');
+      await refresh();
+    } catch (err: any) {
+      console.error('Failed to delete payment:', err);
+      setMessage('Could not delete payment.');
     }
   };
 
@@ -269,9 +283,18 @@ export default function VendorDetailPage() {
                     <p className="mb-2 text-xs font-medium text-slate-500">Payments this cycle</p>
                     <ul className="space-y-1">
                       {payments.map((p) => (
-                        <li key={p.id} className="flex items-center justify-between text-sm">
+                        <li key={p.id} className="group flex items-center justify-between text-sm">
                           <span className="text-slate-600">{p.date}</span>
-                          <span className="font-medium text-slate-800">₹{paiseToRupees(p.amountPaise)}</span>
+                          <div className="flex items-center gap-3">
+                            <span className="font-medium text-slate-800">₹{paiseToRupees(p.amountPaise)}</span>
+                            <button
+                              onClick={() => handleDeletePayment(p.id)}
+                              className="opacity-0 transition-opacity group-hover:opacity-100 text-red-400 hover:text-red-600 p-1"
+                              title="Delete payment"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
                         </li>
                       ))}
                     </ul>
