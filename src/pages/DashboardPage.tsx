@@ -11,10 +11,12 @@ import {
   ChevronRight,
   Wallet,
   Activity,
+  Calendar,
 } from 'lucide-react';
-import { subscribeCustomers } from '../services/customerService';
+import { subscribeCustomers, todayIso } from '../services/customerService';
 import { subscribeVendors } from '../services/vendorService';
-import { paiseToRupees } from '../services/money';
+import { paiseToRupees, hundredthsToUnits } from '../services/money';
+import { getDailyLedger, type DailyLedgerItem } from '../services/dashboardService';
 import type { Customer, Vendor } from '../lib/types';
 
 type DashboardTab = 'all' | 'customers' | 'vendors';
@@ -24,6 +26,11 @@ export default function DashboardPage() {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<DashboardTab>('all');
+  
+  // Ledger state
+  const [ledgerDate, setLedgerDate] = useState(todayIso());
+  const [ledgerItems, setLedgerItems] = useState<DailyLedgerItem[]>([]);
+  const [ledgerLoading, setLedgerLoading] = useState(false);
 
   useEffect(() => {
     let customerLoaded = false;
@@ -46,6 +53,15 @@ export default function DashboardPage() {
       unsubVendors();
     };
   }, []);
+
+  useEffect(() => {
+    if (loading) return;
+    setLedgerLoading(true);
+    getDailyLedger(ledgerDate, customers, vendors)
+      .then(setLedgerItems)
+      .catch((err) => console.error('Failed to load ledger:', err))
+      .finally(() => setLedgerLoading(false));
+  }, [ledgerDate, customers, vendors, loading]);
 
   // Customer statistics
   const customerStats = useMemo(() => {
@@ -424,6 +440,85 @@ export default function DashboardPage() {
               )}
             </div>
           )}
+
+          {/* DAILY LEDGER SECTION */}
+          <div className="card space-y-4 p-4 sm:p-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-700 ring-1 ring-brand-200">
+                  <Activity size={18} />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-slate-900">Daily Ledger</h2>
+                  <p className="text-xs text-slate-500">Activity for selected date</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar size={16} className="text-slate-400" />
+                <input
+                  type="date"
+                  value={ledgerDate}
+                  max={todayIso()}
+                  onChange={(e) => setLedgerDate(e.target.value)}
+                  className="input py-1 text-sm font-semibold text-slate-700"
+                />
+              </div>
+            </div>
+
+            {ledgerLoading ? (
+              <div className="py-8 text-center text-sm font-medium text-slate-400">Loading activity...</div>
+            ) : ledgerItems.length === 0 ? (
+              <div className="py-8 text-center text-sm font-medium text-slate-400">No activity recorded on this date.</div>
+            ) : (
+              <div className="space-y-3">
+                {ledgerItems.map((item) => {
+                  const isMoney = item.type === 'customer_payment' || item.type === 'vendor_payment';
+                  const isCustomer = item.type.startsWith('customer');
+
+                  return (
+                    <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl bg-slate-50 p-3 ring-1 ring-slate-100">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <Link to={isCustomer ? `/customers/${item.entityId}` : `/vendors/${item.entityId}`} className="truncate font-semibold text-slate-900 hover:text-brand-600 transition">
+                            {item.entityName}
+                          </Link>
+                          <span className={`pill text-[9px] uppercase ${isCustomer ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>
+                            {isCustomer ? 'Customer' : 'Vendor'}
+                          </span>
+                        </div>
+                        <div className="mt-1 flex items-center gap-1.5 text-xs font-medium">
+                          {isMoney ? (
+                            <span className={isCustomer ? 'text-emerald-600' : 'text-amber-600'}>
+                              {isCustomer ? 'Received Payment' : 'Given Payment'}
+                            </span>
+                          ) : (
+                            <span className="text-slate-600 capitalize">
+                              {item.product} {item.productType && `(${item.productType})`}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 sm:gap-1 border-t sm:border-t-0 border-slate-200 pt-2 sm:pt-0">
+                        {isMoney ? (
+                          <div className={`font-bold ${isCustomer ? 'text-emerald-600' : 'text-amber-600'}`}>
+                            ₹{paiseToRupees(item.amountPaise!)}
+                          </div>
+                        ) : (
+                          <div className="font-bold text-slate-700">
+                            {hundredthsToUnits(item.quantity!)} {item.product === 'milk' ? 'L' : 'kg'} <span className="text-[10px] font-medium text-slate-400 font-normal">@ ₹{paiseToRupees(item.rate!)}</span>
+                          </div>
+                        )}
+                        <div className="text-[10px] font-semibold text-slate-500 bg-white px-2 py-0.5 rounded-full ring-1 ring-slate-200 uppercase tracking-wider shadow-sm" title="Current Balance Status">
+                          {item.entityStatus}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>
