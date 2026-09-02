@@ -6,7 +6,7 @@ import { deleteCustomer, getCustomer, setCustomerActive } from '../services/cust
 import { paiseToRupees, rupeesToPaise } from '../services/money';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, Plus, Pencil, Power, Phone } from 'lucide-react';
+import { Trash2, Plus, Pencil, Power, Phone, ArrowLeft, MoreVertical, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
 import CustomerForm from '../components/CustomerForm';
 import DeliveryEntryForm from '../components/DeliveryEntryForm';
 import EntryList from '../components/EntryList';
@@ -32,6 +32,7 @@ export default function CustomerDetailPage() {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmToggle, setConfirmToggle] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [partialAmount, setPartialAmount] = useState('');
   const [editEntry, setEditEntry] = useState<DeliveryEntry | null>(null);
   const navigate = useNavigate();
@@ -143,12 +144,16 @@ export default function CustomerDetailPage() {
 
   const initials = customer.name.slice(0, 2).toUpperCase();
   const status = customer.paymentStatus;
-  const statusBadge =
-    status === 'paid'
-      ? { cls: 'bg-green-50 text-green-700 ring-green-200', label: '✓ Paid' }
-      : status === 'partial'
-        ? { cls: 'bg-blue-50 text-blue-700 ring-blue-200', label: '◐ Partial' }
-        : { cls: 'bg-amber-50 text-amber-700 ring-amber-200', label: '● Unpaid' };
+  
+  let StatusIcon = AlertCircle;
+  let statusLabel = 'Unpaid';
+  if (status === 'paid') {
+    StatusIcon = CheckCircle2;
+    statusLabel = 'Paid';
+  } else if (status === 'partial') {
+    StatusIcon = Clock;
+    statusLabel = 'Partial';
+  }
 
   const tabBtn = (key: Tab, label: string, count?: number) => (
     <button
@@ -168,8 +173,9 @@ export default function CustomerDetailPage() {
 
   return (
     <div className="mx-auto max-w-2xl animate-fade-in space-y-4 p-4">
-      <Link to="/" className="inline-flex items-center gap-1 text-sm font-medium text-slate-500 transition hover:text-brand-700">
-        ‹ Customers
+      <Link to="/" className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-brand-700">
+        <ArrowLeft size={16} />
+        Customers
       </Link>
 
       {/* Header card — compact professional card */}
@@ -188,11 +194,12 @@ export default function CustomerDetailPage() {
                     {customer.phone}
                   </span>
                 )}
-                <span className="inline-flex items-center rounded-md bg-white/15 px-2 py-0.5 text-[11px] font-semibold text-white ring-1 ring-white/20">
-                  {statusBadge.label}
+                <span className="inline-flex items-center gap-1 rounded-md bg-white/15 px-2 py-1 text-[11px] font-semibold text-white ring-1 ring-white/20">
+                  <StatusIcon size={12} className="opacity-90" />
+                  {statusLabel}
                 </span>
                 {customer.active === false && (
-                  <span className="inline-flex items-center rounded-md bg-rose-500/30 px-2 py-0.5 text-[11px] font-semibold text-rose-100 ring-1 ring-rose-400/30">
+                  <span className="inline-flex items-center rounded-md bg-rose-500/30 px-2 py-1 text-[11px] font-semibold text-rose-100 ring-1 ring-rose-400/30">
                     Inactive
                   </span>
                 )}
@@ -200,31 +207,33 @@ export default function CustomerDetailPage() {
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-0.5 rounded-xl bg-white/10 p-1 ring-1 ring-white/15 backdrop-blur">
+          <div className="relative">
             <button
-              onClick={() => setEditingCustomer(true)}
-              aria-label="Edit customer"
-              title="Edit customer"
-              className="rounded-lg p-1.5 text-white/85 transition hover:bg-white/20 hover:text-white"
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="flex shrink-0 items-center justify-center rounded-xl bg-white/10 p-2 text-white/90 ring-1 ring-white/15 backdrop-blur transition hover:bg-white/20 hover:text-white"
             >
-              <Pencil size={15} />
+              <MoreVertical size={18} />
             </button>
-            <button
-              onClick={() => setConfirmToggle(true)}
-              aria-label={customer.active === false ? 'Activate customer' : 'Deactivate customer'}
-              title={customer.active === false ? 'Activate' : 'Deactivate'}
-              className="rounded-lg p-1.5 text-white/85 transition hover:bg-white/20 hover:text-white"
-            >
-              <Power size={15} />
-            </button>
-            <button
-              onClick={() => setConfirmDelete(true)}
-              aria-label="Delete customer"
-              title="Delete customer"
-              className="rounded-lg p-1.5 text-white/85 transition hover:bg-rose-500/30 hover:text-white"
-            >
-              <Trash2 size={15} />
-            </button>
+            {menuOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
+                <div className="absolute right-0 top-full z-20 mt-1.5 w-40 overflow-hidden rounded-xl bg-white p-1 shadow-lg ring-1 ring-slate-900/5 animate-scale-in origin-top-right text-left">
+                  <button onClick={() => { setEditingCustomer(true); setMenuOpen(false); }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
+                    <Pencil size={15} className="text-slate-400" />
+                    Edit
+                  </button>
+                  <button onClick={() => { setConfirmToggle(true); setMenuOpen(false); }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">
+                    <Power size={15} className="text-slate-400" />
+                    {customer.active === false ? 'Activate' : 'Deactivate'}
+                  </button>
+                  <div className="my-1 h-px bg-slate-100" />
+                  <button onClick={() => { setConfirmDelete(true); setMenuOpen(false); }} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50">
+                    <Trash2 size={15} className="text-rose-500" />
+                    Delete
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
