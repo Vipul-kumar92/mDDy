@@ -11,6 +11,7 @@ import VendorDetailPage from './pages/VendorDetailPage';
 import CalculatorPage from './pages/CalculatorPage';
 import AdminPage from './pages/AdminPage';
 import DashboardPage from './pages/DashboardPage';
+import QuickAddPage from './pages/QuickAddPage';
 
 function Protected({ children }: { children: React.ReactNode }) {
   return (
@@ -31,6 +32,14 @@ export default function App() {
             element={
               <Protected>
                 <DashboardPage />
+              </Protected>
+            }
+          />
+          <Route
+            path="/quick-add"
+            element={
+              <Protected>
+                <QuickAddPage />
               </Protected>
             }
           />

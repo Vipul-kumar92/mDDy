@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Users, Truck, IndianRupee, Calculator, BarChart3, Menu } from 'lucide-react';
+import { Users, Truck, IndianRupee, Calculator, BarChart3, Menu, PlusCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useIdleTimeout } from '../hooks/useIdleTimeout';
 import ProfileMenu from './ProfileMenu';
 
 const BASE_NAV = [
+  { to: '/quick-add', label: 'Quick Add', Icon: PlusCircle },
   { to: '/dashboard', label: 'Stats', Icon: BarChart3 },
   { to: '/', label: 'Customers', Icon: Users },
   { to: '/vendors', label: 'Vendors', Icon: Truck },
