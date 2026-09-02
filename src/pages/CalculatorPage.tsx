@@ -57,14 +57,14 @@ export default function CalculatorPage() {
   return (
     <div className="mx-auto max-w-2xl animate-fade-in space-y-4 p-4">
       {/* Hero */}
-      <div className="animate-slide-up overflow-hidden rounded-3xl bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 p-5 text-white shadow-lift">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/25">
-            <CalcIcon size={22} />
+      <div className="animate-slide-up overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 via-brand-600 to-brand-700 p-5 text-white shadow-sm ring-1 ring-brand-500/30">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 ring-1 ring-white/30 backdrop-blur-sm">
+            <CalcIcon size={24} className="text-white" />
           </div>
           <div>
-            <p className="text-sm font-medium text-white/70">Quick calculator</p>
-            <p className="text-lg font-extrabold leading-tight">
+            <p className="text-sm font-semibold text-brand-100 uppercase tracking-wide">Quick Calculator</p>
+            <p className="mt-0.5 text-xl font-extrabold leading-tight tracking-tight">
               {mode === 'amount' ? 'Qty × Rate = Amount' : 'Amount ÷ Rate = Qty'}
             </p>
           </div>
@@ -78,8 +78,8 @@ export default function CalculatorPage() {
             onClick={() => setMode('amount')}
             className={
               mode === 'amount'
-                ? 'rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-soft'
-                : 'rounded-xl px-4 py-2 text-sm font-medium text-slate-500'
+                ? 'rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-brand-700 shadow-sm ring-1 ring-slate-900/5'
+                : 'rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-500 transition hover:text-slate-700'
             }
           >
             Find Amount
@@ -88,8 +88,8 @@ export default function CalculatorPage() {
             onClick={() => setMode('quantity')}
             className={
               mode === 'quantity'
-                ? 'rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-soft'
-                : 'rounded-xl px-4 py-2 text-sm font-medium text-slate-500'
+                ? 'rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-brand-700 shadow-sm ring-1 ring-slate-900/5'
+                : 'rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-500 transition hover:text-slate-700'
             }
           >
             Find Quantity
@@ -98,7 +98,7 @@ export default function CalculatorPage() {
         <button
           onClick={swap}
           title="Swap mode"
-          className="rounded-xl border border-slate-200 bg-white p-2.5 text-slate-500 shadow-soft transition hover:bg-slate-50"
+          className="rounded-xl border border-slate-200 bg-white p-2.5 text-slate-500 shadow-sm transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-600 active:scale-95"
         >
           <ArrowLeftRight size={18} />
         </button>
@@ -158,13 +158,18 @@ export default function CalculatorPage() {
       </div>
 
       {/* Result */}
-      <div className="rounded-3xl bg-gradient-to-br from-brand-600 to-brand-800 p-6 text-center text-white shadow-lift">
-        <p className="text-sm font-medium text-white/70">
-          {mode === 'amount' ? 'Amount' : 'Quantity'}
-        </p>
-        <p className="mt-1 text-4xl font-extrabold tracking-tight">
-          {result ? (mode === 'amount' ? `₹${result}` : result) : '—'}
-        </p>
+      <div className="card relative overflow-hidden border-brand-100 bg-gradient-to-b from-brand-50 to-white p-6 text-center shadow-inner">
+        <div className="absolute -right-6 -top-6 text-brand-100/50">
+          <CalcIcon size={120} strokeWidth={1} />
+        </div>
+        <div className="relative z-10">
+          <p className="text-xs font-bold uppercase tracking-widest text-brand-600/80">
+            {mode === 'amount' ? 'Total Amount' : 'Calculated Quantity'}
+          </p>
+          <p className="mt-2 text-5xl font-black tracking-tight text-brand-700 drop-shadow-sm">
+            {result ? (mode === 'amount' ? `₹${result}` : result) : '0.00'}
+          </p>
+        </div>
       </div>
     </div>
   );
