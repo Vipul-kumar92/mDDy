@@ -101,7 +101,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl animate-fade-in pb-24 sm:pb-8">{children}</main>
+      <main className="mx-auto max-w-3xl animate-fade-in pb-8">{children}</main>
 
       {/* Mobile bottom tab bar removed as per user request */}
     </div>
