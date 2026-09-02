@@ -1,12 +1,7 @@
 import { useState } from 'react';
 import { Calculator as CalcIcon, ArrowLeftRight } from 'lucide-react';
-import {
-  unitsToHundredths,
   rupeesToPaise,
   paiseToRupees,
-  hundredthsToUnits,
-  lineAmountPaise,
-  qtyFromAmount,
 } from '../services/money';
 
 type Mode = 'amount' | 'quantity';
@@ -28,17 +23,23 @@ export default function CalculatorPage() {
   try {
     if (mode === 'amount') {
       if (qty.trim() && rate.trim()) {
-        const paise = lineAmountPaise(unitsToHundredths(qty), rupeesToPaise(rate));
-        result = paiseToRupees(paise);
+        const q = parseFloat(qty);
+        const r = parseFloat(rate);
+        if (isNaN(q) || isNaN(r) || q < 0 || r < 0) throw new Error();
+        // Result is amount, so usually 2 decimals for rupees
+        result = (q * r).toFixed(2);
       }
     } else {
       if (amount.trim() && rate.trim()) {
-        const q = qtyFromAmount(rupeesToPaise(amount), rupeesToPaise(rate));
-        result = hundredthsToUnits(q);
+        const a = parseFloat(amount);
+        const r = parseFloat(rate);
+        if (isNaN(a) || isNaN(r) || a < 0 || r <= 0) throw new Error();
+        // Result is quantity, show up to 3 decimals
+        result = parseFloat((a / r).toFixed(3)).toString();
       }
     }
   } catch {
-    error = 'Enter valid numbers (up to 2 decimals).';
+    error = 'Enter valid positive numbers.';
   }
 
   const swap = () => {
