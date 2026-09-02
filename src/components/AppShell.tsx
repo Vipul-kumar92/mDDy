@@ -33,25 +33,25 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-20 border-b border-slate-200/70 bg-white/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-2.5">
+      <header className="sticky top-0 z-20 bg-gradient-to-r from-brand-700 via-brand-600 to-brand-700 shadow-md">
+        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
           {/* Brand */}
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-sm font-extrabold tracking-tight text-white shadow-glow">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 text-lg font-extrabold tracking-tight text-white ring-1 ring-white/30 backdrop-blur-sm shadow-sm">
               mD
             </div>
-            <div className="leading-tight">
-              <p className="text-[15px] font-bold text-slate-800">mDDy</p>
-              <p className="text-[10px] font-medium text-slate-400">Dairy Manager</p>
+            <div className="leading-tight text-white">
+              <p className="text-[17px] font-extrabold tracking-wide">mDDy</p>
+              <p className="text-[10.5px] font-semibold text-brand-100 uppercase tracking-widest">Dairy Manager</p>
             </div>
           </div>
 
           {/* Hamburger Nav */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <div className="relative">
               <button
                 onClick={() => setNavOpen(!navOpen)}
-                className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition hover:bg-slate-200 hover:text-slate-900"
+                className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white transition hover:bg-white/20 ring-1 ring-white/20 backdrop-blur-sm"
               >
                 <Menu size={20} />
               </button>
@@ -93,7 +93,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               )}
             </div>
 
-            <div className="h-6 w-px bg-slate-200" />
+            <div className="h-6 w-px bg-white/20" />
 
             <ProfileMenu />
           </div>

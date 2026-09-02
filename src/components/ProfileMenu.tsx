@@ -32,13 +32,13 @@ export default function ProfileMenu() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 rounded-full border border-slate-200 bg-white py-1 pl-1 pr-2 shadow-soft transition hover:bg-slate-50"
+        className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 py-1 pl-1 pr-2 shadow-sm backdrop-blur-md transition hover:bg-white/20"
       >
         <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-xs font-bold text-white">
           {user.photoURL ? <img src={user.photoURL} alt="" className="h-full w-full object-cover" /> : initials}
         </span>
-        <span className="hidden max-w-[120px] truncate text-sm font-medium text-slate-600 sm:inline">{name}</span>
-        <ChevronDown size={15} className="text-slate-400" />
+        <span className="hidden max-w-[120px] truncate text-sm font-medium text-white sm:inline">{name}</span>
+        <ChevronDown size={15} className="text-white/70" />
       </button>
 
       {open && (
