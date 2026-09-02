@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Pencil, Trash2, Plus, Truck, Power, Phone, ArrowLeft, MoreVertical, CheckCircle2, Clock, AlertCircle, Store } from 'lucide-react';
+import { Pencil, Trash2, Plus, Truck, Power, Phone, ArrowLeft, MoreVertical, CheckCircle2, Clock, AlertCircle, Store, XCircle, PieChart } from 'lucide-react';
 import { getVendor, deleteVendor, setVendorActive } from '../services/vendorService';
 import {
   listPurchases,
@@ -147,14 +147,17 @@ export default function VendorDetailPage() {
   const initials = vendor.name.slice(0, 2).toUpperCase();
   const status = vendor.paymentStatus;
   
-  let StatusIcon = AlertCircle;
+  let StatusIcon = XCircle;
   let statusLabel = 'Unpaid';
+  let iconColor = 'text-rose-300';
   if (status === 'paid') {
     StatusIcon = CheckCircle2;
     statusLabel = 'Paid';
+    iconColor = 'text-emerald-300';
   } else if (status === 'partial') {
-    StatusIcon = Clock;
+    StatusIcon = PieChart;
     statusLabel = 'Partial';
+    iconColor = 'text-sky-300';
   }
 
   const tabBtn = (key: Tab, label: string, count?: number) => (
@@ -204,8 +207,8 @@ export default function VendorDetailPage() {
                     {vendor.phone}
                   </span>
                 )}
-                <span className="inline-flex items-center gap-1 rounded-md bg-white/15 px-2 py-1 text-[11px] font-semibold text-white ring-1 ring-white/20">
-                  <StatusIcon size={12} className="opacity-90" />
+                <span className="inline-flex items-center gap-1.5 rounded-md bg-white/15 px-2.5 py-1 text-[11px] font-semibold text-white ring-1 ring-white/20">
+                  <StatusIcon size={14} className={iconColor} />
                   {statusLabel}
                 </span>
                 {vendor.active === false && (

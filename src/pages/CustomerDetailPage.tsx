@@ -6,7 +6,7 @@ import { deleteCustomer, getCustomer, setCustomerActive } from '../services/cust
 import { paiseToRupees, rupeesToPaise } from '../services/money';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, Plus, Pencil, Power, Phone, ArrowLeft, MoreVertical, CheckCircle2, Clock, AlertCircle, User } from 'lucide-react';
+import { Trash2, Plus, Pencil, Power, Phone, ArrowLeft, MoreVertical, CheckCircle2, Clock, AlertCircle, User, XCircle, PieChart } from 'lucide-react';
 import CustomerForm from '../components/CustomerForm';
 import DeliveryEntryForm from '../components/DeliveryEntryForm';
 import EntryList from '../components/EntryList';
@@ -145,14 +145,17 @@ export default function CustomerDetailPage() {
   const initials = customer.name.slice(0, 2).toUpperCase();
   const status = customer.paymentStatus;
   
-  let StatusIcon = AlertCircle;
+  let StatusIcon = XCircle;
   let statusLabel = 'Unpaid';
+  let iconColor = 'text-rose-300';
   if (status === 'paid') {
     StatusIcon = CheckCircle2;
     statusLabel = 'Paid';
+    iconColor = 'text-emerald-300';
   } else if (status === 'partial') {
-    StatusIcon = Clock;
+    StatusIcon = PieChart;
     statusLabel = 'Partial';
+    iconColor = 'text-sky-300';
   }
 
   const tabBtn = (key: Tab, label: string, count?: number) => (
@@ -194,8 +197,8 @@ export default function CustomerDetailPage() {
                     {customer.phone}
                   </span>
                 )}
-                <span className="inline-flex items-center gap-1 rounded-md bg-white/15 px-2 py-1 text-[11px] font-semibold text-white ring-1 ring-white/20">
-                  <StatusIcon size={12} className="opacity-90" />
+                <span className="inline-flex items-center gap-1.5 rounded-md bg-white/15 px-2.5 py-1 text-[11px] font-semibold text-white ring-1 ring-white/20">
+                  <StatusIcon size={14} className={iconColor} />
                   {statusLabel}
                 </span>
                 {customer.active === false && (
