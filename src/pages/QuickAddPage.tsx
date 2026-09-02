@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
-import { subscribeCustomers } from '../services/customerService';
+import { subscribeCustomers, createCustomer } from '../services/customerService';
 import { addEntry } from '../services/deliveryService';
 import { recordPartialPayment } from '../services/billingService';
 import { rupeesToPaise, unitsToHundredths } from '../services/money';
@@ -39,10 +39,15 @@ export default function QuickAddPage() {
     e.preventDefault();
     setError('');
     setSuccess('');
-    if (!selectedId) {
-      setError('Please select a valid customer from the list.');
+    
+    let targetId = selectedId;
+    const trimmedSearch = search.trim();
+
+    if (!targetId && !trimmedSearch) {
+      setError('Please type or select a customer name.');
       return;
     }
+    
     if (!qty.trim() && !amountPaid.trim()) {
       setError('Please enter either quantity or amount paid.');
       return;
@@ -50,10 +55,21 @@ export default function QuickAddPage() {
 
     setLoading(true);
     try {
+      // Create customer on the fly if it doesn't exist
+      if (!targetId) {
+        // Check if a customer with this exact name already exists (case-insensitive)
+        const existing = customers.find(c => c.name.toLowerCase() === trimmedSearch.toLowerCase());
+        if (existing) {
+          targetId = existing.id;
+        } else {
+          targetId = await createCustomer({ name: trimmedSearch });
+        }
+      }
+
       // 1. Add Delivery
       if (qty.trim()) {
         const hundQty = unitsToHundredths(qty);
-        await addEntry(selectedId, {
+        await addEntry(targetId, {
           date,
           slot,
           product,
@@ -65,12 +81,14 @@ export default function QuickAddPage() {
       // 2. Add Payment
       if (amountPaid.trim()) {
         const paise = rupeesToPaise(amountPaid);
-        await recordPartialPayment(selectedId, paise);
+        await recordPartialPayment(targetId, paise);
       }
 
       setSuccess('Entry added successfully!');
       
-      // Reset form but keep date and customer selected for rapid entry
+      // Reset form but keep date for rapid entry, clear search so they can add the next person
+      setSearch('');
+      setSelectedId('');
       setQty('');
       setAmountPaid('');
       
@@ -98,18 +116,18 @@ export default function QuickAddPage() {
       <form onSubmit={handleSubmit} className="card space-y-5 p-5 sm:p-6">
         {/* Entity Selection */}
         <div className="space-y-1.5">
-          <label className="block text-sm font-semibold text-slate-700">Select Customer</label>
+          <label className="block text-sm font-semibold text-slate-700">Customer Name</label>
           <input
             type="text"
             list="customers-list"
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
-              const c = customers.find((cust) => cust.name === e.target.value);
+              const c = customers.find((cust) => cust.name.toLowerCase() === e.target.value.toLowerCase());
               if (c) setSelectedId(c.id);
               else setSelectedId('');
             }}
-            placeholder="Type customer name..."
+            placeholder="Type new or select existing..."
             className="input w-full font-medium"
             required
             autoFocus
