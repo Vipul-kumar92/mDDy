@@ -56,7 +56,7 @@ export async function createCustomer(input: NewCustomer): Promise<string> {
     nameLower: clean.name.toLowerCase(),
     ...(clean.phone ? { phone: clean.phone } : {}),
     ...(clean.address ? { address: clean.address } : {}),
-    paymentStatus: 'unpaid' as const,
+    paymentStatus: 'paid' as const,
     currentCycleStart: `${todayIso().slice(0, 7)}-01`, // first day of the current month
     active: true,
     createdAt: serverTimestamp(),
@@ -72,7 +72,7 @@ function mapCustomer(id: string, data: Record<string, unknown>): Customer {
     nameLower: (data.nameLower as string) ?? (data.name as string).toLowerCase(),
     phone: data.phone as string | undefined,
     address: data.address as string | undefined,
-    paymentStatus: (data.paymentStatus as Customer['paymentStatus']) ?? 'unpaid',
+    paymentStatus: (data.paymentStatus as Customer['paymentStatus']) ?? 'paid',
     paidPaise: (data.paidPaise as number) ?? 0,
     currentCycleStart: (data.currentCycleStart as string) ?? '',
     active: (data.active as boolean | undefined) ?? true,
