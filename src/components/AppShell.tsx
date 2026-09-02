@@ -95,8 +95,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </div>
             
             <div className="h-6 w-px bg-slate-200" />
-
-          <ProfileMenu />
+            
+            <ProfileMenu />
+          </div>
         </div>
       </header>
 
