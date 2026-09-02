@@ -64,7 +64,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                       const active = isActive(to);
                       const isVendor = to === '/vendors';
                       const isStats = to === '/dashboard';
-                      
+
                       let activeBg = 'bg-brand-50 text-brand-700';
                       let activeIcon = 'text-brand-600';
                       if (isVendor) {
@@ -80,9 +80,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                           key={to}
                           to={to}
                           onClick={() => setNavOpen(false)}
-                          className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
-                            active ? activeBg : 'text-slate-600 hover:bg-slate-50'
-                          }`}
+                          className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${active ? activeBg : 'text-slate-600 hover:bg-slate-50'
+                            }`}
                         >
                           <Icon size={18} className={active ? activeIcon : 'text-slate-400'} />
                           {label}
@@ -93,9 +92,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 </>
               )}
             </div>
-            
+
             <div className="h-6 w-px bg-slate-200" />
-            
+
             <ProfileMenu />
           </div>
         </div>

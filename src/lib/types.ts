@@ -113,6 +113,7 @@ export interface BillResult {
 /** An immutable historical record of a closed billing cycle. */
 /** A recorded payment within a cycle (partial or final). */
 export interface CyclePayment {
+  id?: string;
   amountPaise: number;
   date: string; // 'YYYY-MM-DD'
   type: 'partial' | 'final';

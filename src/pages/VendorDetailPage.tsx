@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Pencil, Trash2, Plus, Truck, Power, Phone, ArrowLeft, MoreVertical, CheckCircle2, Clock, AlertCircle, Store, XCircle, PieChart } from 'lucide-react';
+import { Pencil, Trash2, Plus, Phone, ArrowLeft, MoreVertical, CheckCircle2, Store, XCircle, PieChart, Power } from 'lucide-react';
 import { getVendor, deleteVendor, setVendorActive } from '../services/vendorService';
 import {
   listPurchases,
@@ -144,7 +144,6 @@ export default function VendorDetailPage() {
   if (loading) return <div className="p-4 text-slate-500">Loading…</div>;
   if (!id || !vendor) return <div className="p-4 text-slate-500">Vendor not found.</div>;
 
-  const initials = vendor.name.slice(0, 2).toUpperCase();
   const status = vendor.paymentStatus;
   
   let StatusIcon = XCircle;

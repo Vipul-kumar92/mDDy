@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { Calculator as CalcIcon, ArrowLeftRight } from 'lucide-react';
-import {
-  rupeesToPaise,
-  paiseToRupees,
-} from '../services/money';
+
 
 type Mode = 'amount' | 'quantity';
 

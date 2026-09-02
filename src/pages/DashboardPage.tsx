@@ -6,15 +6,11 @@ import {
   CheckCircle2,
   Clock,
   CircleDashed,
-  IndianRupee,
   ArrowUpRight,
   ArrowDownRight,
-  TrendingUp,
   ChevronRight,
   Wallet,
   Activity,
-  UserCheck,
-  UserX,
 } from 'lucide-react';
 import { subscribeCustomers } from '../services/customerService';
 import { subscribeVendors } from '../services/vendorService';
@@ -162,8 +158,8 @@ export default function DashboardPage() {
       ) : (
         <>
           {/* Financial Highlights (Shown in All view or general) */}
-          {(tab === 'all' || tab === 'customers') && (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {(tab === 'all' || tab === 'customers') && (
               <div className="card space-y-1 p-3.5 sm:p-4">
                 <div className="flex items-center justify-between text-xs text-slate-500">
                   <span>Customer Inflow</span>
@@ -174,38 +170,38 @@ export default function DashboardPage() {
                 </p>
                 <p className="text-[11px] text-emerald-600 font-medium">Collected this cycle</p>
               </div>
+            )}
 
-              {(tab === 'all' || tab === 'vendors') && (
-                <div className="card space-y-1 p-3.5 sm:p-4">
-                  <div className="flex items-center justify-between text-xs text-slate-500">
-                    <span>Vendor Outflow</span>
-                    <ArrowUpRight size={16} className="text-amber-600" />
-                  </div>
-                  <p className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
-                    ₹{paiseToRupees(vendorStats.paidOutPaise)}
-                  </p>
-                  <p className="text-[11px] text-amber-600 font-medium">Paid out this cycle</p>
+            {(tab === 'all' || tab === 'vendors') && (
+              <div className="card space-y-1 p-3.5 sm:p-4">
+                <div className="flex items-center justify-between text-xs text-slate-500">
+                  <span>Vendor Outflow</span>
+                  <ArrowUpRight size={16} className="text-amber-600" />
                 </div>
-              )}
+                <p className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+                  ₹{paiseToRupees(vendorStats.paidOutPaise)}
+                </p>
+                <p className="text-[11px] text-amber-600 font-medium">Paid out this cycle</p>
+              </div>
+            )}
 
-              {tab === 'all' && (
-                <div className="card col-span-2 space-y-1 p-3.5 sm:col-span-1 sm:p-4">
-                  <div className="flex items-center justify-between text-xs text-slate-500">
-                    <span>Net Balance</span>
-                    <Wallet size={16} className={netCashPaise >= 0 ? 'text-brand-600' : 'text-rose-600'} />
-                  </div>
-                  <p
-                    className={`text-xl font-bold tracking-tight sm:text-2xl ${
-                      netCashPaise >= 0 ? 'text-emerald-700' : 'text-rose-600'
-                    }`}
-                  >
-                    ₹{paiseToRupees(netCashPaise)}
-                  </p>
-                  <p className="text-[11px] text-slate-500 font-medium">Customer Inflow − Vendor Outflow</p>
+            {tab === 'all' && (
+              <div className="card col-span-2 space-y-1 p-3.5 sm:col-span-1 sm:p-4">
+                <div className="flex items-center justify-between text-xs text-slate-500">
+                  <span>Net Balance</span>
+                  <Wallet size={16} className={netCashPaise >= 0 ? 'text-brand-600' : 'text-rose-600'} />
                 </div>
-              )}
-            </div>
-          )}
+                <p
+                  className={`text-xl font-bold tracking-tight sm:text-2xl ${
+                    netCashPaise >= 0 ? 'text-emerald-700' : 'text-rose-600'
+                  }`}
+                >
+                  ₹{paiseToRupees(netCashPaise)}
+                </p>
+                <p className="text-[11px] text-slate-500 font-medium">Customer Inflow − Vendor Outflow</p>
+              </div>
+            )}
+          </div>
 
           {/* CUSTOMER STATS CARD */}
           {(tab === 'all' || tab === 'customers') && (

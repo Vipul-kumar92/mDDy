@@ -6,7 +6,7 @@ import { deleteCustomer, getCustomer, setCustomerActive } from '../services/cust
 import { paiseToRupees, rupeesToPaise } from '../services/money';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { useNavigate } from 'react-router-dom';
-import { Trash2, Plus, Pencil, Power, Phone, ArrowLeft, MoreVertical, CheckCircle2, Clock, AlertCircle, User, XCircle, PieChart } from 'lucide-react';
+import { ArrowLeft, Plus, MoreVertical, Pencil, Power, Trash2, Phone, User, CheckCircle2, PieChart, XCircle } from 'lucide-react';
 import CustomerForm from '../components/CustomerForm';
 import DeliveryEntryForm from '../components/DeliveryEntryForm';
 import EntryList from '../components/EntryList';
@@ -142,7 +142,6 @@ export default function CustomerDetailPage() {
   if (loading) return <div className="p-4 text-slate-500">Loading…</div>;
   if (!customer) return <div className="p-4 text-slate-500">Customer not found.</div>;
 
-  const initials = customer.name.slice(0, 2).toUpperCase();
   const status = customer.paymentStatus;
   
   let StatusIcon = XCircle;
