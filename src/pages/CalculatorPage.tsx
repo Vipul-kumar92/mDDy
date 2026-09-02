@@ -48,6 +48,10 @@ export default function CalculatorPage() {
     // keep rate
   };
 
+  const handleInput = (val: string, setter: React.Dispatch<React.SetStateAction<string>>) => {
+    setter(val.startsWith('.') ? '0' + val : val);
+  };
+
   return (
     <div className="mx-auto max-w-2xl animate-fade-in space-y-4 p-4">
       {/* Hero */}
@@ -107,7 +111,7 @@ export default function CalculatorPage() {
               <input
                 inputMode="decimal"
                 value={qty}
-                onChange={(e) => setQty(e.target.value)}
+                onChange={(e) => handleInput(e.target.value, setQty)}
                 placeholder="e.g. 2.5"
                 className="input mt-1"
               />
@@ -117,7 +121,7 @@ export default function CalculatorPage() {
               <input
                 inputMode="decimal"
                 value={rate}
-                onChange={(e) => setRate(e.target.value)}
+                onChange={(e) => handleInput(e.target.value, setRate)}
                 placeholder="e.g. 60"
                 className="input mt-1"
               />
@@ -130,7 +134,7 @@ export default function CalculatorPage() {
               <input
                 inputMode="decimal"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => handleInput(e.target.value, setAmount)}
                 placeholder="e.g. 150"
                 className="input mt-1"
               />
@@ -140,7 +144,7 @@ export default function CalculatorPage() {
               <input
                 inputMode="decimal"
                 value={rate}
-                onChange={(e) => setRate(e.target.value)}
+                onChange={(e) => handleInput(e.target.value, setRate)}
                 placeholder="e.g. 60"
                 className="input mt-1"
               />
