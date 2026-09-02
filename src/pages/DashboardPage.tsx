@@ -471,7 +471,11 @@ export default function DashboardPage() {
               <div className="py-8 text-center text-sm font-medium text-slate-400">No activity recorded on this date.</div>
             ) : (
               <div className="space-y-3">
-                {ledgerItems.map((item) => {
+                {ledgerItems.filter((item) => {
+                  if (tab === 'customers') return item.type.startsWith('customer');
+                  if (tab === 'vendors') return item.type.startsWith('vendor');
+                  return true;
+                }).map((item) => {
                   const isMoney = item.type === 'customer_payment' || item.type === 'vendor_payment';
                   const isCustomer = item.type.startsWith('customer');
 
@@ -516,6 +520,17 @@ export default function DashboardPage() {
                     </div>
                   );
                 })}
+                
+                {/* Fallback if filtered list is empty */}
+                {ledgerItems.length > 0 && ledgerItems.filter((item) => {
+                  if (tab === 'customers') return item.type.startsWith('customer');
+                  if (tab === 'vendors') return item.type.startsWith('vendor');
+                  return true;
+                }).length === 0 && (
+                  <div className="py-8 text-center text-sm font-medium text-slate-400">
+                    No {tab} activity recorded on this date.
+                  </div>
+                )}
               </div>
             )}
           </div>
