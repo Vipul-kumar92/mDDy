@@ -34,6 +34,7 @@ export interface Customer {
   paidPaise?: number; // amount already collected in the current cycle (partial payments)
   currentCycleStart: string; // 'YYYY-MM-DD'
   active?: boolean; // false = deactivated (hidden from active list, no new entries)
+  isWalkIn?: boolean; // true if auto-created via Quick Add
   createdAt?: Timestamp;
 }
 
@@ -42,6 +43,7 @@ export interface NewCustomer {
   name: string;
   phone?: string;
   address?: string;
+  isWalkIn?: boolean;
 }
 
 /**

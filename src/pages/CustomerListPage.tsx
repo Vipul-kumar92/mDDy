@@ -21,7 +21,10 @@ export default function CustomerListPage() {
     return unsub;
   }, []);
 
-  const filtered = useMemo(() => filterCustomers(customers, term), [customers, term]);
+  const filtered = useMemo(() => {
+    const regularCustomers = customers.filter(c => !c.isWalkIn);
+    return filterCustomers(regularCustomers, term);
+  }, [customers, term]);
 
 
   return (

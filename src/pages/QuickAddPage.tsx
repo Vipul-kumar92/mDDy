@@ -62,7 +62,7 @@ export default function QuickAddPage() {
         if (existing) {
           targetId = existing.id;
         } else {
-          targetId = await createCustomer({ name: trimmedSearch });
+          targetId = await createCustomer({ name: trimmedSearch, isWalkIn: true });
         }
       }
 

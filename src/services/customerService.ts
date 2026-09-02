@@ -45,7 +45,7 @@ export function validateCustomer(input: NewCustomer): NewCustomer {
   if (address && address.length > 250) {
     throw new AppError('INVALID_ADDRESS', 'Address must be at most 250 characters');
   }
-  return { name, phone: phone || undefined, address: address || undefined };
+  return { name, phone: phone || undefined, address: address || undefined, isWalkIn: input.isWalkIn };
 }
 
 /** Create and persist a new customer (Requirements 2.1, 2.4, 2.6). */
@@ -56,6 +56,7 @@ export async function createCustomer(input: NewCustomer): Promise<string> {
     nameLower: clean.name.toLowerCase(),
     ...(clean.phone ? { phone: clean.phone } : {}),
     ...(clean.address ? { address: clean.address } : {}),
+    ...(clean.isWalkIn ? { isWalkIn: true } : {}),
     paymentStatus: 'paid' as const,
     currentCycleStart: `${todayIso().slice(0, 7)}-01`, // first day of the current month
     active: true,
@@ -76,6 +77,7 @@ function mapCustomer(id: string, data: Record<string, unknown>): Customer {
     paidPaise: (data.paidPaise as number) ?? 0,
     currentCycleStart: (data.currentCycleStart as string) ?? '',
     active: (data.active as boolean | undefined) ?? true,
+    isWalkIn: (data.isWalkIn as boolean | undefined) ?? false,
   };
 }
 
