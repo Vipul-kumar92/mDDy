@@ -36,23 +36,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen">
       <header className="sticky top-0 z-20 bg-gradient-to-r from-brand-700 via-brand-600 to-brand-700 shadow-md">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
-          {/* Brand */}
+          {/* Left side: Hamburger + Brand */}
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 text-lg font-extrabold tracking-tight text-white ring-1 ring-white/30 backdrop-blur-sm shadow-sm">
-              mD
-            </div>
-            <div className="leading-tight text-white">
-              <p className="text-[17px] font-extrabold tracking-wide">mDDy</p>
-              <p className="text-[10.5px] font-semibold text-brand-100 uppercase tracking-widest">Dairy Manager</p>
-            </div>
-          </div>
-
-          {/* Hamburger Nav */}
-          <div className="flex items-center gap-2.5">
+            {/* Hamburger Nav */}
             <div className="relative">
               <button
                 onClick={() => setNavOpen(!navOpen)}
-                className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white transition hover:bg-white/20 ring-1 ring-white/20 backdrop-blur-sm"
+                className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white transition hover:bg-white/20 active:bg-white/30 ring-1 ring-white/20 backdrop-blur-sm"
               >
                 <Menu size={20} />
               </button>
@@ -60,7 +50,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               {navOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setNavOpen(false)} />
-                  <div className="absolute right-0 top-full mt-2 w-48 z-50 overflow-hidden rounded-2xl bg-white p-1.5 shadow-xl ring-1 ring-slate-900/5 animate-scale-in origin-top-right">
+                  <div className="absolute left-0 top-full mt-2 w-48 z-50 overflow-hidden rounded-2xl bg-white p-1.5 shadow-xl ring-1 ring-slate-900/5 animate-scale-in origin-top-left">
                     {NAV.map(({ to, label, Icon }) => {
                       const active = isActive(to);
                       const isVendor = to === '/vendors';
@@ -81,7 +71,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                           key={to}
                           to={to}
                           onClick={() => setNavOpen(false)}
-                          className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${active ? activeBg : 'text-slate-600 hover:bg-slate-50'
+                          className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${active ? activeBg : 'text-slate-600 active:bg-slate-50 md:hover:bg-slate-50'
                             }`}
                         >
                           <Icon size={18} className={active ? activeIcon : 'text-slate-400'} />
@@ -94,8 +84,20 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               )}
             </div>
 
-            <div className="h-6 w-px bg-white/20" />
+            {/* Brand Logo */}
+            <div className="flex items-center gap-3 ml-1">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 text-lg font-extrabold tracking-tight text-white ring-1 ring-white/30 backdrop-blur-sm shadow-sm">
+                mD
+              </div>
+              <div className="leading-tight text-white">
+                <p className="text-[17px] font-extrabold tracking-wide">mDDy</p>
+                <p className="text-[10.5px] font-semibold text-brand-100 uppercase tracking-widest">Dairy Manager</p>
+              </div>
+            </div>
+          </div>
 
+          {/* Profile Menu */}
+          <div className="flex items-center">
             <ProfileMenu />
           </div>
         </div>
