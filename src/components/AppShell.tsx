@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Users, Truck, IndianRupee, Calculator, BarChart3 } from 'lucide-react';
+import { Users, Truck, IndianRupee, Calculator, BarChart3, Menu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useIdleTimeout } from '../hooks/useIdleTimeout';
 import ProfileMenu from './ProfileMenu';
@@ -14,9 +14,10 @@ const BASE_NAV = [
 ];
 
 /** App layout: premium glassy top bar + mobile bottom tab bar. */
-export default function AppShell({ children }: { children: ReactNode }) {
+export default function AppShell({ children }: { children: React.ReactNode }) {
   const { logout, user } = useAuth();
   const location = useLocation();
+  const [navOpen, setNavOpen] = useState(false);
 
   useIdleTimeout(() => {
     void logout();
@@ -45,33 +46,55 @@ export default function AppShell({ children }: { children: ReactNode }) {
             </div>
           </div>
 
-          {/* Desktop nav */}
-          <nav className="hidden items-center gap-1 rounded-full bg-slate-100/80 p-1 sm:flex">
-            {NAV.map(({ to, label, Icon }) => {
-              const active = isActive(to);
-              const isVendor = to === '/vendors';
-              const isStats = to === '/dashboard';
-              const activeColor = isVendor
-                ? 'text-vendor-700'
-                : isStats
-                  ? 'text-slate-900'
-                  : 'text-brand-700';
-              return (
-                <Link
-                  key={to}
-                  to={to}
-                  className={
-                    active
-                      ? `flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold shadow-soft sm:px-3.5 sm:text-sm ${activeColor}`
-                      : 'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-slate-500 transition hover:text-slate-800 sm:px-3.5 sm:text-sm'
-                  }
-                >
-                  <Icon size={15} />
-                  {label}
-                </Link>
-              );
-            })}
-          </nav>
+          {/* Hamburger Nav */}
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <button
+                onClick={() => setNavOpen(!navOpen)}
+                className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-600 transition hover:bg-slate-200 hover:text-slate-900"
+              >
+                <Menu size={20} />
+              </button>
+
+              {navOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setNavOpen(false)} />
+                  <div className="absolute right-0 top-full mt-2 w-48 z-50 overflow-hidden rounded-2xl bg-white p-1.5 shadow-xl ring-1 ring-slate-900/5 animate-scale-in origin-top-right">
+                    {NAV.map(({ to, label, Icon }) => {
+                      const active = isActive(to);
+                      const isVendor = to === '/vendors';
+                      const isStats = to === '/dashboard';
+                      
+                      let activeBg = 'bg-brand-50 text-brand-700';
+                      let activeIcon = 'text-brand-600';
+                      if (isVendor) {
+                        activeBg = 'bg-vendor-50 text-vendor-700';
+                        activeIcon = 'text-vendor-600';
+                      } else if (isStats) {
+                        activeBg = 'bg-slate-100 text-slate-900';
+                        activeIcon = 'text-slate-800';
+                      }
+
+                      return (
+                        <Link
+                          key={to}
+                          to={to}
+                          onClick={() => setNavOpen(false)}
+                          className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                            active ? activeBg : 'text-slate-600 hover:bg-slate-50'
+                          }`}
+                        >
+                          <Icon size={18} className={active ? activeIcon : 'text-slate-400'} />
+                          {label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+            
+            <div className="h-6 w-px bg-slate-200" />
 
           <ProfileMenu />
         </div>
@@ -79,42 +102,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
       <main className="mx-auto max-w-3xl animate-fade-in pb-24 sm:pb-8">{children}</main>
 
-      {/* Mobile bottom tab bar */}
-      <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200/70 bg-white/90 backdrop-blur-xl sm:hidden">
-        <div className="mx-auto flex max-w-3xl items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
-          {NAV.map(({ to, label, Icon }) => {
-            const active = isActive(to);
-            const isVendor = to === '/vendors';
-            const isStats = to === '/dashboard';
-            const dot = isVendor ? 'bg-vendor-600' : isStats ? 'bg-slate-900' : 'bg-brand-600';
-            const ic = active
-              ? isVendor
-                ? 'text-vendor-600'
-                : isStats
-                  ? 'text-slate-900'
-                  : 'text-brand-600'
-              : 'text-slate-400';
-            const tx = active
-              ? isVendor
-                ? 'text-vendor-700'
-                : isStats
-                  ? 'text-slate-900 font-semibold'
-                  : 'text-brand-700 font-semibold'
-              : 'text-slate-400 font-medium';
-            return (
-              <Link
-                key={to}
-                to={to}
-                className="relative flex flex-1 flex-col items-center gap-0.5 py-2.5"
-              >
-                {active && <span className={`absolute top-0 h-0.5 w-8 rounded-full ${dot}`} />}
-                <Icon size={19} className={ic} />
-                <span className={`text-[10px] sm:text-[11px] ${tx}`}>{label}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
+      {/* Mobile bottom tab bar removed as per user request */}
     </div>
   );
 }
