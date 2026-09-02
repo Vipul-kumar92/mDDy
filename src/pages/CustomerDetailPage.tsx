@@ -175,9 +175,9 @@ export default function CustomerDetailPage() {
 
   return (
     <div className="mx-auto max-w-2xl animate-fade-in space-y-4 p-4">
-      <Link to="/" className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-brand-700">
+      <Link to="/customers" className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 transition hover:text-brand-700">
         <ArrowLeft size={16} />
-        Customers
+        Back to Customers
       </Link>
 
       {/* Header card — compact professional card */}
@@ -429,7 +429,7 @@ export default function CustomerDetailPage() {
         onConfirm={async () => {
           setConfirmDelete(false);
           if (id) await deleteCustomer(id);
-          navigate('/');
+          navigate('/customers');
         }}
         onCancel={() => setConfirmDelete(false)}
       />

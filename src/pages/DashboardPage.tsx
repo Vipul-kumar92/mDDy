@@ -219,7 +219,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <Link
-                  to="/"
+                  to="/customers"
                   className="inline-flex items-center gap-1 text-xs font-semibold text-brand-700 hover:text-brand-800"
                 >
                   View all <ChevronRight size={14} />

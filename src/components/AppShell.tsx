@@ -7,8 +7,8 @@ import ProfileMenu from './ProfileMenu';
 
 const BASE_NAV = [
   { to: '/quick-add', label: 'Quick Add', Icon: PlusCircle },
-  { to: '/dashboard', label: 'Stats', Icon: BarChart3 },
-  { to: '/', label: 'Customers', Icon: Users },
+  { to: '/', label: 'Stats', Icon: BarChart3 },
+  { to: '/customers', label: 'Customers', Icon: Users },
   { to: '/vendors', label: 'Vendors', Icon: Truck },
   { to: '/rates', label: 'Rates', Icon: IndianRupee },
   { to: '/calculator', label: 'Calc', Icon: Calculator },
@@ -64,7 +64,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                     {NAV.map(({ to, label, Icon }) => {
                       const active = isActive(to);
                       const isVendor = to === '/vendors';
-                      const isStats = to === '/dashboard';
+                      const isStats = to === '/';
 
                       let activeBg = 'bg-brand-50 text-brand-700';
                       let activeIcon = 'text-brand-600';

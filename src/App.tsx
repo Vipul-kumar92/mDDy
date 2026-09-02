@@ -28,7 +28,7 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route
-            path="/dashboard"
+            path="/"
             element={
               <Protected>
                 <DashboardPage />
@@ -44,7 +44,7 @@ export default function App() {
             }
           />
           <Route
-            path="/"
+            path="/customers"
             element={
               <Protected>
                 <CustomerListPage />
