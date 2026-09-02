@@ -188,7 +188,12 @@ export default function CustomerDetailPage() {
               <User size={20} className="opacity-80" />
             </div>
             <div className="min-w-0">
-              <h1 className="truncate text-lg font-bold leading-tight sm:text-xl">{customer.name}</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="truncate text-lg font-bold leading-tight sm:text-xl">{customer.name}</h1>
+                <span className="inline-flex items-center justify-center rounded-full bg-white/15 p-1 ring-1 ring-white/20" title={statusLabel}>
+                  <StatusIcon size={14} className={iconColor} />
+                </span>
+              </div>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
                 {customer.phone && (
                   <span className="inline-flex items-center gap-1 font-medium text-white/80">
@@ -196,9 +201,6 @@ export default function CustomerDetailPage() {
                     {customer.phone}
                   </span>
                 )}
-                <span className="inline-flex items-center justify-center rounded-md bg-white/15 p-1 ring-1 ring-white/20" title={statusLabel}>
-                  <StatusIcon size={14} className={iconColor} />
-                </span>
                 {customer.active === false && (
                   <span className="inline-flex items-center rounded-md bg-rose-500/30 px-2 py-1 text-[11px] font-semibold text-rose-100 ring-1 ring-rose-400/30">
                     Inactive
