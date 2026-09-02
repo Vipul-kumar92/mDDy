@@ -19,7 +19,7 @@ import { paiseToRupees, hundredthsToUnits } from '../services/money';
 import { getDailyLedger, type DailyLedgerItem } from '../services/dashboardService';
 import type { Customer, Vendor } from '../lib/types';
 
-type DashboardTab = 'all' | 'customers' | 'vendors';
+type DashboardTab = 'all' | 'customers' | 'vendors' | 'daily';
 
 export default function DashboardPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -125,6 +125,28 @@ export default function DashboardPage() {
     };
   }, [vendors]);
 
+  // Daily statistics
+  const dailyStats = useMemo(() => {
+    let customerMilkHundredths = 0;
+    let customerCashPaise = 0;
+    let vendorMilkHundredths = 0;
+    let vendorCashPaise = 0;
+
+    ledgerItems.forEach((item) => {
+      if (item.type === 'customer_delivery') customerMilkHundredths += item.quantity || 0;
+      if (item.type === 'customer_payment') customerCashPaise += item.amountPaise || 0;
+      if (item.type === 'vendor_purchase') vendorMilkHundredths += item.quantity || 0;
+      if (item.type === 'vendor_payment') vendorCashPaise += item.amountPaise || 0;
+    });
+
+    return {
+      customerMilkHundredths,
+      customerCashPaise,
+      vendorMilkHundredths,
+      vendorCashPaise,
+    };
+  }, [ledgerItems]);
+
   // Financial summary
   const netCashPaise = customerStats.collectedPaise - vendorStats.paidOutPaise;
 
@@ -155,15 +177,15 @@ export default function DashboardPage() {
 
         {/* Tab Switcher */}
         <div className="mt-4 flex gap-1 rounded-xl bg-white/10 p-1 backdrop-blur ring-1 ring-white/10">
-          {(['all', 'customers', 'vendors'] as DashboardTab[]).map((t) => (
+          {(['all', 'customers', 'vendors', 'daily'] as DashboardTab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`flex-1 rounded-lg py-1.5 text-xs font-semibold transition ${
+              className={`flex-1 rounded-lg py-1.5 text-[11px] font-semibold transition sm:text-xs ${
                 tab === t ? 'bg-white text-slate-900 shadow-sm' : 'text-white/80 hover:text-white'
               }`}
             >
-              {t === 'all' ? 'All Overview' : t === 'customers' ? `Customers (${customerStats.total})` : `Vendors (${vendorStats.total})`}
+              {t === 'all' ? 'Overview' : t === 'customers' ? 'Customers' : t === 'vendors' ? 'Vendors' : 'Daily'}
             </button>
           ))}
         </div>
@@ -442,98 +464,107 @@ export default function DashboardPage() {
           )}
 
           {/* DAILY LEDGER SECTION */}
-          <div className="card space-y-4 p-4 sm:p-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-700 ring-1 ring-brand-200">
-                  <Activity size={18} />
+          {tab === 'daily' && (
+            <div className="space-y-4 animate-fade-in">
+              {/* Daily Stats Summary */}
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div className="card space-y-1 p-3">
+                  <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Milk Delivered</p>
+                  <p className="text-lg font-extrabold text-slate-900">{hundredthsToUnits(dailyStats.customerMilkHundredths)} <span className="text-xs font-medium text-slate-500">L</span></p>
                 </div>
-                <div>
-                  <h2 className="text-base font-bold text-slate-900">Daily Ledger</h2>
-                  <p className="text-xs text-slate-500">Activity for selected date</p>
+                <div className="card space-y-1 p-3 ring-emerald-100 bg-emerald-50/50">
+                  <p className="text-[10px] uppercase font-bold text-emerald-700 tracking-wider">Cash Received</p>
+                  <p className="text-lg font-extrabold text-emerald-700">₹{paiseToRupees(dailyStats.customerCashPaise)}</p>
+                </div>
+                <div className="card space-y-1 p-3">
+                  <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Milk Purchased</p>
+                  <p className="text-lg font-extrabold text-slate-900">{hundredthsToUnits(dailyStats.vendorMilkHundredths)} <span className="text-xs font-medium text-slate-500">L</span></p>
+                </div>
+                <div className="card space-y-1 p-3 ring-amber-100 bg-amber-50/50">
+                  <p className="text-[10px] uppercase font-bold text-amber-700 tracking-wider">Cash Paid</p>
+                  <p className="text-lg font-extrabold text-amber-700">₹{paiseToRupees(dailyStats.vendorCashPaise)}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Calendar size={16} className="text-slate-400" />
-                <input
-                  type="date"
-                  value={ledgerDate}
-                  max={todayIso()}
-                  onChange={(e) => setLedgerDate(e.target.value)}
-                  className="input py-1 text-sm font-semibold text-slate-700"
-                />
-              </div>
-            </div>
 
-            {ledgerLoading ? (
-              <div className="py-8 text-center text-sm font-medium text-slate-400">Loading activity...</div>
-            ) : ledgerItems.length === 0 ? (
-              <div className="py-8 text-center text-sm font-medium text-slate-400">No activity recorded on this date.</div>
-            ) : (
-              <div className="space-y-3">
-                {ledgerItems.filter((item) => {
-                  if (tab === 'customers') return item.type.startsWith('customer');
-                  if (tab === 'vendors') return item.type.startsWith('vendor');
-                  return true;
-                }).map((item) => {
-                  const isMoney = item.type === 'customer_payment' || item.type === 'vendor_payment';
-                  const isCustomer = item.type.startsWith('customer');
-
-                  return (
-                    <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl bg-slate-50 p-3 ring-1 ring-slate-100">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <Link to={isCustomer ? `/customers/${item.entityId}` : `/vendors/${item.entityId}`} className="truncate font-semibold text-slate-900 hover:text-brand-600 transition">
-                            {item.entityName}
-                          </Link>
-                          <span className={`pill text-[9px] uppercase ${isCustomer ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>
-                            {isCustomer ? 'Customer' : 'Vendor'}
-                          </span>
-                        </div>
-                        <div className="mt-1 flex items-center gap-1.5 text-xs font-medium">
-                          {isMoney ? (
-                            <span className={isCustomer ? 'text-emerald-600' : 'text-amber-600'}>
-                              {isCustomer ? 'Received Payment' : 'Given Payment'}
-                            </span>
-                          ) : (
-                            <span className="text-slate-600 capitalize">
-                              {item.product} {item.productType && `(${item.productType})`}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 sm:gap-1 border-t sm:border-t-0 border-slate-200 pt-2 sm:pt-0">
-                        {isMoney ? (
-                          <div className={`font-bold ${isCustomer ? 'text-emerald-600' : 'text-amber-600'}`}>
-                            ₹{paiseToRupees(item.amountPaise!)}
-                          </div>
-                        ) : (
-                          <div className="font-bold text-slate-700">
-                            {hundredthsToUnits(item.quantity!)} {item.product === 'milk' ? 'L' : 'kg'} <span className="text-[10px] font-medium text-slate-400 font-normal">@ ₹{paiseToRupees(item.rate!)}</span>
-                          </div>
-                        )}
-                        <div className="text-[10px] font-semibold text-slate-500 bg-white px-2 py-0.5 rounded-full ring-1 ring-slate-200 uppercase tracking-wider shadow-sm" title="Current Balance Status">
-                          {item.entityStatus}
-                        </div>
-                      </div>
+              {/* Feed */}
+              <div className="card space-y-4 p-4 sm:p-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-700 ring-1 ring-brand-200">
+                      <Calendar size={18} />
                     </div>
-                  );
-                })}
-                
-                {/* Fallback if filtered list is empty */}
-                {ledgerItems.length > 0 && ledgerItems.filter((item) => {
-                  if (tab === 'customers') return item.type.startsWith('customer');
-                  if (tab === 'vendors') return item.type.startsWith('vendor');
-                  return true;
-                }).length === 0 && (
-                  <div className="py-8 text-center text-sm font-medium text-slate-400">
-                    No {tab} activity recorded on this date.
+                    <div>
+                      <h2 className="text-base font-bold text-slate-900">Date-wise Activity</h2>
+                      <p className="text-xs text-slate-500">Entries and payments</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="date"
+                      value={ledgerDate}
+                      max={todayIso()}
+                      onChange={(e) => setLedgerDate(e.target.value)}
+                      className="input py-1.5 text-sm font-semibold text-slate-700 w-full sm:w-auto"
+                    />
+                  </div>
+                </div>
+
+                {ledgerLoading ? (
+                  <div className="py-8 text-center text-sm font-medium text-slate-400">Loading activity...</div>
+                ) : ledgerItems.length === 0 ? (
+                  <div className="py-8 text-center text-sm font-medium text-slate-400">No activity recorded on this date.</div>
+                ) : (
+                  <div className="space-y-3">
+                    {ledgerItems.map((item) => {
+                      const isMoney = item.type === 'customer_payment' || item.type === 'vendor_payment';
+                      const isCustomer = item.type.startsWith('customer');
+
+                      return (
+                        <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl bg-slate-50 p-3 ring-1 ring-slate-100 hover:bg-slate-100 transition">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <Link to={isCustomer ? `/customers/${item.entityId}` : `/vendors/${item.entityId}`} className="truncate font-semibold text-slate-900 hover:text-brand-600 transition">
+                                {item.entityName}
+                              </Link>
+                              <span className={`pill text-[9px] uppercase ${isCustomer ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>
+                                {isCustomer ? 'Customer' : 'Vendor'}
+                              </span>
+                            </div>
+                            <div className="mt-1 flex items-center gap-1.5 text-xs font-medium">
+                              {isMoney ? (
+                                <span className={isCustomer ? 'text-emerald-600' : 'text-amber-600'}>
+                                  {isCustomer ? 'Received Payment' : 'Given Payment'}
+                                </span>
+                              ) : (
+                                <span className="text-slate-600 capitalize">
+                                  {item.product} {item.productType && `(${item.productType})`}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 sm:gap-1 border-t sm:border-t-0 border-slate-200 pt-2 sm:pt-0">
+                            {isMoney ? (
+                              <div className={`font-bold ${isCustomer ? 'text-emerald-600' : 'text-amber-600'}`}>
+                                ₹{paiseToRupees(item.amountPaise!)}
+                              </div>
+                            ) : (
+                              <div className="font-bold text-slate-700">
+                                {hundredthsToUnits(item.quantity!)} {item.product === 'milk' ? 'L' : 'kg'} <span className="text-[10px] font-medium text-slate-400 font-normal">@ ₹{paiseToRupees(item.rate!)}</span>
+                              </div>
+                            )}
+                            <div className="text-[10px] font-semibold text-slate-500 bg-white px-2 py-0.5 rounded-full ring-1 ring-slate-200 uppercase tracking-wider shadow-sm" title="Current Balance Status">
+                              {item.entityStatus}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </>
       )}
     </div>
