@@ -201,9 +201,8 @@ export default function VendorDetailPage() {
                     {vendor.phone}
                   </span>
                 )}
-                <span className="inline-flex items-center gap-1 rounded-md bg-white/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white ring-1 ring-white/20">
-                  <StatusIcon size={12} className={iconColor} />
-                  {statusLabel}
+                <span className="inline-flex items-center justify-center rounded-md bg-white/15 p-1 ring-1 ring-white/20" title={statusLabel}>
+                  <StatusIcon size={14} className={iconColor} />
                 </span>
                 {vendor.active === false && (
                   <span className="inline-flex items-center rounded-md bg-rose-500/30 px-2 py-1 text-[11px] font-semibold text-rose-100 ring-1 ring-rose-400/30">
